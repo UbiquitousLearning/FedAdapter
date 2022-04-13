@@ -41,8 +41,7 @@ if __name__ == "__main__":
     set_seed(args.manual_seed)
 
     # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
-    wandb.init(project="fednlp", entity="automl", name="FedNLP-Centralized" +
-                                                "-SS-" + str(args.dataset) + "-" + str(args.model_name),
+    wandb.init(project="test", entity="cdq", name="Watch-New-BART-BS-4-Centralized-SS-" + str(args.dataset) + "-Origin",
         config=args)
 
     # device

@@ -39,13 +39,15 @@ if __name__ == "__main__":
     set_seed(args.manual_seed)
 
     # device
-    device = torch.device("cuda:0")
-
+    device = torch.device("cpu")
+    # logging.info(torch.get_num_threads())
+    # logging.info(torch.get_num_threads())
     # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
-    wandb.init(project="fednlp", entity="automl", name="FedNLP-Centralized" +
-                                                "-TC-" + str(args.dataset) + "-" + str(args.model_name) + "-freeze-" + args.freeze_layers if args.freeze_layers else "",
+    wandb.init(project="testttt", entity="cdq", name="Watch-New-BERT-Centralized-TC-Length-16" + str(args.dataset) + "-Origin",
         config=args)
 
+    # wandb.init(project="testt", entity="cdq", name="FedNLP-Centralized" + "-LR-0.1"
+    #                                                     "-SS-" + str(args.dataset) + "-" + str(args.model_name) , config=args)
     # attributes
     attributes = TextClassificationDataManager.load_attributes(args.data_file_path)
     num_labels = len(attributes["label_vocab"])

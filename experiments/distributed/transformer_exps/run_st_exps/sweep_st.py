@@ -12,8 +12,8 @@ def add_args(parser):
     return parser.parse_args()
 
 
-def wait_for_the_training_process():
-    pipe_path = "./tmp/fedml"
+def wait_for_the_training_process(args):
+    pipe_path = "./tmp/fedml-{args.width}".format(args=args)
     if not os.path.exists(os.path.dirname(pipe_path)):
         try:
             os.makedirs(os.path.dirname(pipe_path))
@@ -65,18 +65,29 @@ hps = [
     # 'FedProx "niid_label_clients=30_alpha=0.1" 1e-1 1 0.01 30',
 ]
 
+hps_p = [
+    'FedAvg "niid_label_clients=30_alpha=0.1" 1e-1 1 0.5 400 10',
+    'FedAvg "niid_label_clients=30_alpha=0.1" 1e-1 1 0.5 400 8',
+    'FedAvg "niid_label_clients=30_alpha=0.1" 1e-1 1 0.5 400 4',
+    'FedAvg "niid_label_clients=30_alpha=0.1" 1e-1 1 0.5 400 2',
+    'FedAvg "niid_label_clients=30_alpha=0.1" 1e-1 1 0.5 400 1',
+]
+
 run_id = 0
-for hp in hps:
+width = "st"
+for hp in hps_p[::-1]:
     args.hp = hp
     args.run_id = run_id
+    args.width = width
 
     logging.info("hp = %s" % args.hp)
+    os.system("perl -p -i -e 's/pipe_path = .*/pipe_path = \".\/tmp\/fedml-{args.width}\"/g' /home/cdq/FedNLP/FedML/fedml_api/distributed/fedavg/utils.py".format(args=args)) # pipe tmp name
     os.system("mkdir ./tmp/; touch ./tmp/fedml")
     os.system('nohup sh run_seq_tagging.sh '
               '{args.hp} '
               '> ./fednlp_st_{args.run_id}.log 2>&1 &'.format(args=args))
 
-    wait_for_the_training_process()
+    wait_for_the_training_process(args)
 
     logging.info("cleaning the training...")
 

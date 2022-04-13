@@ -12,8 +12,8 @@ def add_args(parser):
     return parser.parse_args()
 
 
-def wait_for_the_training_process():
-    pipe_path = "./tmp/fedml"
+def wait_for_the_training_process(args):
+    pipe_path = "./tmp/fedml-{args.width}".format(args=args)
     pipe_fd = os.open(pipe_path, os.O_RDONLY | os.O_NONBLOCK)
     with os.fdopen(pipe_fd) as pipe:
         while True:
@@ -70,50 +70,54 @@ hps = [
     # 'FedOPT "uniform" 5e-5 0.1 25',
     # 'FedAvg "niid_quantity_clients=100_beta=5.0" 5e-5 0.1 25',
     # 'FedOPT "niid_quantity_clients=100_beta=5.0" 5e-5 0.1 25', # finished by Chaoyang
-    'FedOPT "niid_label_clients=100_alpha=1.0" 5e-5 1 30 10 e,0,1,2,3,4,5',
-    'FedOPT "niid_label_clients=100_alpha=1.0" 5e-5 1 30 10 e,0,1,2,3,4',
-    'FedOPT "niid_label_clients=100_alpha=1.0" 5e-5 1 30 10 e,0,1,2,3',
-    'FedOPT "niid_label_clients=100_alpha=1.0" 5e-5 1 30 10 e,0,1,2',
-    'FedOPT "niid_label_clients=100_alpha=1.0" 5e-5 1 30 10 e,0,1',
-    'FedOPT "niid_label_clients=100_alpha=1.0" 5e-5 1 30 10 e,0',
-    'FedOPT "niid_label_clients=100_alpha=1.0" 5e-5 1 30 10 e',
+    # 'FedAvg "uniform" 0.1 1 400 10 e,0,1,2,3,4,5',
+    # 'FedAvg "uniform" 0.1 1 400 10 e,0,1,2,3,4,5,6,7,8,9,10,11',
+    # 'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5,6,7,8,9,10',
+    # 'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5,6,7,8,9',
+    'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5,6,7,8',
+    # 'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5,6,7',
+    'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5,6',
+    # 'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5',
+    'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4',
+    # 'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3',
+    'FedAvg "uniform" 0.1 1 400 5 e,0,1,2',
+    # 'FedAvg "uniform" 0.1 1 400 5 e,0,1',
+    'FedAvg "uniform" 0.1 1 400 5 e,0',
+    'FedAvg "uniform" 0.1 1 400 5 e'
 ]
 
-hps_ch = [
-    # running
-    # 'FedOPT "uniform" 5e-5 1 300 10'
-    'FedOPT "niid_label_clients=100_alpha=10.0" 5e-5 1 300 10',
-    
-    'FedOPT "niid_label_clients=100_alpha=0.1" 5e-5 1 300 10',
-    'FedOPT "niid_label_clients=100_alpha=0.5" 5e-5 1 300 10',
-    'FedOPT "niid_label_clients=100_alpha=1.0" 5e-5 1 300 10',
-    'FedOPT "niid_label_clients=100_alpha=5.0" 5e-5 1 300 10',
-    'FedOPT "niid_label_clients=100_alpha=10.0" 5e-5 1 300 10',
-    'FedOPT "niid_quantity_clients=100_beta=5.0" 5e-5 1 300 10',
-
-    'FedAvg "niid_label_clients=100_alpha=0.1" 1e-1 1 300 10',
-    'FedAvg "niid_label_clients=100_alpha=0.5" 1e-1 1 300 10',
-    'FedAvg "niid_label_clients=100_alpha=1.0" 1e-1 1 300 10',
-    'FedAvg "niid_label_clients=100_alpha=5.0" 1e-1 1 300 10',
-    'FedAvg "niid_label_clients=100_alpha=10.0" 1e-1 1 300 10',
-    'FedAvg "niid_quantity_clients=100_beta=5.0" 1e-1 1 300 10',
+hps_parallelism = [
+    'FedAvg "uniform" 0.1 1 200 1',
+    'FedAvg "uniform" 0.1 1 200 2',
+    'FedAvg "uniform" 0.1 1 200 4',
+    'FedAvg "uniform" 0.1 1 200 8',
+    'FedAvg "uniform" 0.1 1 200 16',
+    'FedAvg "uniform" 0.1 1 200 32',
+    # 'FedAvg "uniform" 0.1 1 3000 64',
 ]
 
 run_id = 0
-for hp in hps_ch:
+width = "p"
+for hp in hps_parallelism[::-1]:
+    args.width = width
     args.hp = hp
     args.run_id = run_id
-
+    
     logging.info("hp = %s" % args.hp)
-    os.system("mkdir ./tmp/; touch ./tmp/fedml")
+    logging.info("Width (adapter size) is %s.", str(width))
+    os.system("perl -p -i -e 's/pipe_path = .*/pipe_path = \".\/tmp\/fedml-{args.width}\"/g' /home/cdq/FedNLP/FedML/fedml_api/distributed/fedavg/utils.py".format(args=args)) # pipe tmp name
+    logging.info("perl -p -i -e 's/pipe_path = .*/pipe_path = \".\/tmp\/fedml-{args.width}\"/g' /home/cdq/FedNLP/FedML/fedml_api/distributed/fedavg/utils.py".format(args=args))
+
+    
+    os.system("mkdir ./tmp/; touch ./tmp/fedml-{args.width}; mkdir ./results/BERT/size-{args.width}".format(args=args))
     os.system('nohup sh run_text_classification.sh '
               '{args.hp} '
-              '> ./fednlp_tc_{args.run_id}.log 2>&1 &'.format(args=args))
+              '> ./results/BERT/size-{args.width}/fednlp_tc_{args.run_id}.log 2>&1 &'.format(args=args))
 
-    wait_for_the_training_process()
+    wait_for_the_training_process(args)
 
     logging.info("cleaning the training...")
-    os.system("kill $(ps aux | grep \"fedavg_main_tc.py\" | grep -v grep | awk '{print $2}')")
+    # os.system("kill $(ps aux | grep \"fedavg_main_tc.py\" | grep -v grep | awk '{print $2}')")
 
     sleep(5)
     run_id += 1

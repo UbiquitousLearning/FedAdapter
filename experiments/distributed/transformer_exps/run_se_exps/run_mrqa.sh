@@ -9,7 +9,7 @@ LOG_FILE="fedavg_transformer_se.log"
 WORKER_NUM=5
 CI=0
 
-DATA_DIR=~/fednlp_data/
+DATA_DIR=/data/cdq/fednlp_data/
 DATA_NAME=mrqa
 PROCESS_NUM=`expr $WORKER_NUM + 1`
 echo $PROCESS_NUM
@@ -19,7 +19,7 @@ hostname > mpi_host_file
 mpirun -np $PROCESS_NUM -hostfile mpi_host_file \
 python -m fedavg_main_se \
   --gpu_mapping_file "gpu_mapping.yaml" \
-  --gpu_mapping_key mapping_ink-titan-mrqa \
+  --gpu_mapping_key cdq \
   --client_num_per_round $WORKER_NUM \
   --comm_round $ROUND \
   --ci $CI \

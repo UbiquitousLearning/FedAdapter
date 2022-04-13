@@ -14,24 +14,29 @@ from transformers import (
     BartConfig, 
     BartForConditionalGeneration, 
     BartTokenizer,
+    BertForSequenceClassification,
 )
 
-from model.transformer.bert_model import BertForSequenceClassification
+# from model.transformer.bert_model import BertForSequenceClassification
 from model.transformer.distilbert_model import DistilBertForSequenceClassification
-
+from transformers import AutoModelWithHeads
+from transformers.adapters.composition import Stack, Parallel
 
 def create_model(args, formulation="classification"):
     # create model, tokenizer, and model config (HuggingFace style)
     MODEL_CLASSES = {
         "classification": {
             "bert": (BertConfig, BertForSequenceClassification, BertTokenizer),
-            "distilbert": (DistilBertConfig, DistilBertForSequenceClassification, DistilBertTokenizer),
+            # AutoModelWithHeads for adapter, BertForSequenceClassification for origin
+            "distilbert": (DistilBertConfig,  AutoModelWithHeads, DistilBertTokenizer), 
+            # AutoModelWithHeads for adapter, DistilBertForSequenceClassification for origin
             # "roberta": (RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer),
             # "albert": (AlbertConfig, AlbertForSequenceClassification, AlbertTokenizer),
         },
         "seq_tagging": {
             "bert": (BertConfig, BertForTokenClassification, BertTokenizer),
-            "distilbert": (DistilBertConfig, DistilBertForTokenClassification, DistilBertTokenizer),
+            "distilbert": (DistilBertConfig,  DistilBertForTokenClassification, DistilBertTokenizer),
+            # AutoModelWithHeads for adapter, DistilBertForTokenClassification for origin
         },
         "span_extraction": {
             "bert": (BertConfig, BertForQuestionAnswering, BertTokenizer),
@@ -39,6 +44,7 @@ def create_model(args, formulation="classification"):
         },
         "seq2seq": {
             "bart": (BartConfig, BartForConditionalGeneration, BartTokenizer),
+            # BartForConditionalGeneration,AutoModelWithHeads
         }
     }
     config_class, model_class, tokenizer_class = MODEL_CLASSES[formulation][
@@ -47,6 +53,52 @@ def create_model(args, formulation="classification"):
     #     args.model_name, num_labels=args.num_labels, **args.config)
     config = config_class.from_pretrained(args.model_name, **args.config)
     model = model_class.from_pretrained(args.model_name, config=config)
+
+    width = args.width
+    u_adapter_size = 8 # 单位宽度的adapter
+    rf = 768 / u_adapter_size
+
+    adapter_num = width / u_adapter_size
+
+    adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':rf, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
+
+    adapter_list = []
+    for i in range(adapter_num):
+        model.add_adapter(str(i),config=adapter_config)
+        adapter_list.append(str(i))
+
+    model.set_active_adapters(adapter_list)
+    model.train_adapter(adapter_list)
+
+    # model.add_adapter("test",config=adapter_config)
+    # model.add_classification_head(
+    #     "test",
+    #     num_labels=20, # 20 for TC; ? for ST.
+    #     layers=1
+    # )
+    # model.train_adapter("test")
+    # Parallel
+    model.add_adapter("a0",config=adapter_config)
+    model.add_classification_head(
+        "a0",
+        num_labels=20, # 20 for TC; ? for ST.
+        layers=1
+    ) 
+
+    model.add_adapter("a1",config=adapter_config)
+    model.add_classification_head(
+        "a1",
+        num_labels=20, # 20 for TC; ? for ST.
+        layers=1
+    )
+
+
+    model.set_active_adapters(Parallel("a0", "a1"))
+    model.train_adapter(Parallel("a0", "a1"))
+
+
+
+
     if formulation != "seq2seq":
         tokenizer = tokenizer_class.from_pretrained(
             args.model_name, do_lower_case=args.do_lower_case)

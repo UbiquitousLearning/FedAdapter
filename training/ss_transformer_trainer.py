@@ -49,7 +49,7 @@ class Seq2SeqTrainer:
         self.train_dl = train_dl
         self.test_dl = test_dl
 
-    def train_model(self, device=None):
+    def train_model(self, device=None,rounds=0):
 
         if not device:
             device = self.device
@@ -209,6 +209,10 @@ class Seq2SeqTrainer:
                                                                and global_step % self.args.evaluate_during_training_steps == 0):
                         results, _, _ = self.eval_model(epoch, global_step)
                         logging.info(results)
+            # result = {
+            # "train_loss": current_loss
+            # }
+            # wandb.log(result)
 
         return global_step, tr_loss / global_step
 
@@ -241,6 +245,9 @@ class Seq2SeqTrainer:
         self.model.eval()
         logging.info("len(test_dl) = %d, n_batches = %d" % (len(self.test_dl), n_batches))
         for i, batch in enumerate(self.test_dl):
+            if i%50 > 3:
+                logging.info("stop evaluate in batch %s", str(i))
+                continue
             # batch = tuple(t for t in batch)
             inputs = self._get_inputs_dict(batch)
             with torch.no_grad(): 
@@ -310,6 +317,7 @@ class Seq2SeqTrainer:
         scheduler = get_linear_schedule_with_warmup(
             optimizer, num_warmup_steps=self.args.warmup_steps, num_training_steps=iteration_in_total
         )
+        logging.info(get_parameter_number(model))
         return optimizer, scheduler
 
     def _get_inputs_dict(self, batch):
@@ -470,3 +478,8 @@ class Seq2SeqTrainer:
         return self.decoder_tokenizer.decode(
             output_id, skip_special_tokens=self.args.skip_special_tokens, clean_up_tokenization_spaces=True
         )
+
+def get_parameter_number(net):
+    total_num = sum(p.numel() for p in net.parameters())
+    trainable_num = sum(p.numel() for p in net.parameters() if p.requires_grad)
+    return {'Total': total_num, 'Trainable': trainable_num}

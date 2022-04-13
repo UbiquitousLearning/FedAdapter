@@ -1,7 +1,7 @@
 import torch.nn as nn
 from torch.nn import CrossEntropyLoss, MSELoss
-from transformers.modeling_distilbert import DistilBertModel, DistilBertPreTrainedModel
-
+from transformers import DistilBertModel, DistilBertPreTrainedModel
+import logging
 
 class DistilBertForSequenceClassification(DistilBertPreTrainedModel):
     r"""
@@ -46,6 +46,7 @@ class DistilBertForSequenceClassification(DistilBertPreTrainedModel):
     def forward(
         self, input_ids=None, attention_mask=None, head_mask=None, inputs_embeds=None, labels=None,
     ):
+        # logging.info("inner forward")
         distilbert_output = self.distilbert(input_ids=input_ids, attention_mask=attention_mask, head_mask=head_mask)
         hidden_state = distilbert_output[0]  # (bs, seq_len, dim)
         pooled_output = hidden_state[:, 0]  # (bs, dim)
@@ -63,5 +64,5 @@ class DistilBertForSequenceClassification(DistilBertPreTrainedModel):
                 loss_fct = nn.CrossEntropyLoss(weight=self.weight)
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
             outputs = (loss,) + outputs
-
+        # logging.info("inner forward")
         return outputs  # (loss), logits, (hidden_states), (attentions)

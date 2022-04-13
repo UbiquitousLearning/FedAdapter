@@ -1,0 +1,328 @@
+BartForConditionalGeneration(
+  (model): BartModel(
+    (shared): Embedding(50265, 768, padding_idx=1)
+    (encoder): BartEncoder(
+      (invertible_adapters): ModuleDict()
+      (embed_tokens): Embedding(50265, 768, padding_idx=1)
+      (embed_positions): BartLearnedPositionalEmbedding(1026, 768)
+      (layers): ModuleList(
+        (0): BartEncoderLayer(
+          (self_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=768, out_features=3072, bias=True)
+          (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (attention_adapters): BartSelfAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (output_adapters): BartOutputAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+        )
+        (1): BartEncoderLayer(
+          (self_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=768, out_features=3072, bias=True)
+          (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (attention_adapters): BartSelfAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (output_adapters): BartOutputAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+        )
+        (2): BartEncoderLayer(
+          (self_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=768, out_features=3072, bias=True)
+          (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (attention_adapters): BartSelfAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (output_adapters): BartOutputAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+        )
+        (3): BartEncoderLayer(
+          (self_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=768, out_features=3072, bias=True)
+          (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (attention_adapters): BartSelfAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (output_adapters): BartOutputAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+        )
+        (4): BartEncoderLayer(
+          (self_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=768, out_features=3072, bias=True)
+          (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (attention_adapters): BartSelfAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (output_adapters): BartOutputAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+        )
+        (5): BartEncoderLayer(
+          (self_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=768, out_features=3072, bias=True)
+          (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (attention_adapters): BartSelfAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (output_adapters): BartOutputAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+        )
+      )
+      (layernorm_embedding): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+    )
+    (decoder): BartDecoder(
+      (embed_tokens): Embedding(50265, 768, padding_idx=1)
+      (embed_positions): BartLearnedPositionalEmbedding(1026, 768)
+      (layers): ModuleList(
+        (0): BartDecoderLayer(
+          (self_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (encoder_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (encoder_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=768, out_features=3072, bias=True)
+          (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (attention_adapters): BartSelfAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (output_adapters): BartOutputAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (cross_attention_adapters): BartCrossAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+        )
+        (1): BartDecoderLayer(
+          (self_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (encoder_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (encoder_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=768, out_features=3072, bias=True)
+          (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (attention_adapters): BartSelfAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (output_adapters): BartOutputAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (cross_attention_adapters): BartCrossAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+        )
+        (2): BartDecoderLayer(
+          (self_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (encoder_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (encoder_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=768, out_features=3072, bias=True)
+          (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (attention_adapters): BartSelfAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (output_adapters): BartOutputAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (cross_attention_adapters): BartCrossAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+        )
+        (3): BartDecoderLayer(
+          (self_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (encoder_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (encoder_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=768, out_features=3072, bias=True)
+          (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (attention_adapters): BartSelfAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (output_adapters): BartOutputAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (cross_attention_adapters): BartCrossAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+        )
+        (4): BartDecoderLayer(
+          (self_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (encoder_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (encoder_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=768, out_features=3072, bias=True)
+          (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (attention_adapters): BartSelfAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (output_adapters): BartOutputAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (cross_attention_adapters): BartCrossAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+        )
+        (5): BartDecoderLayer(
+          (self_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (self_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (encoder_attn): BartAttention(
+            (k_proj): Linear(in_features=768, out_features=768, bias=True)
+            (v_proj): Linear(in_features=768, out_features=768, bias=True)
+            (q_proj): Linear(in_features=768, out_features=768, bias=True)
+            (out_proj): Linear(in_features=768, out_features=768, bias=True)
+          )
+          (encoder_attn_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (fc1): Linear(in_features=768, out_features=3072, bias=True)
+          (fc2): Linear(in_features=3072, out_features=768, bias=True)
+          (final_layer_norm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+          (attention_adapters): BartSelfAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (output_adapters): BartOutputAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+          (cross_attention_adapters): BartCrossAttentionAdaptersModule(
+            (adapters): ModuleDict()
+            (adapter_fusion_layer): ModuleDict()
+          )
+        )
+      )
+      (layernorm_embedding): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+    )
+    (invertible_adapters): ModuleDict()
+  )
+  (lm_head): Linear(in_features=768, out_features=50265, bias=False)
+)

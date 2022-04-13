@@ -1,3 +1,4 @@
+# cd /home/cdq/FedNLP/experiments/distributed/transformer_exps/run_ss_exps && conda activate fednlp && sh run_seq2seq.sh FedProx "uniform" 1e-1 1 0.5 1000
 FL_ALG=$1
 PARTITION_METHOD=$2
 C_LR=$3
@@ -6,11 +7,11 @@ MU=$5
 ROUND=$6
 
 LOG_FILE="fedavg_transformer_ss.log"
-WORKER_NUM=4
+WORKER_NUM=3
 CI=0
 
-DATA_DIR=~/fednlp_data/
-DATA_NAME=gigaword
+DATA_DIR=/data/cdq/fednlp_data/
+DATA_NAME=wmt_de-en
 PROCESS_NUM=`expr $WORKER_NUM + 1`
 echo $PROCESS_NUM
 
@@ -19,7 +20,7 @@ hostname > mpi_host_file
 mpirun -np $PROCESS_NUM -hostfile mpi_host_file \
 python -m fedavg_main_ss \
   --gpu_mapping_file "gpu_mapping.yaml" \
-  --gpu_mapping_key mapping_a100_4gpus \
+  --gpu_mapping_key cdq \
   --client_num_per_round $WORKER_NUM \
   --comm_round $ROUND \
   --ci $CI \

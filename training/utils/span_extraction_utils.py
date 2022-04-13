@@ -5,7 +5,7 @@ import string
 import re
 import math
 
-from transformers.tokenization_bert import BasicTokenizer
+from transformers.models.bert.tokenization_bert import BasicTokenizer
 
 from transformers import XLMTokenizer
 

@@ -61,9 +61,10 @@ if __name__ == "__main__":
 
     if process_id == 0:
         # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
-        wandb.init(project="fednlp", entity="automl", name="FedNLP-" + str(args.fl_algorithm) +
-                                                           "-SS-" + str(args.dataset) + "-" + str(args.model_name),
-                   config=args)
+        # wandb.init(project="testtt", entity="cdq", name="FedNLP-" + str(args.fl_algorithm) + "-LR-"+ str(args.lr) +
+        #                                                 "-SS-" + str(args.dataset) + "-" + str(args.model_name) , config=args)
+
+        wandb.init(project="test", entity="cdq", name="Watch-New-FL-SS-BART-FL-FedProx-Adapter-WMT-MH-256", config=args)
 
     # device: check "gpu_mapping.yaml" to see how to define the topology
     device = mapping_processes_to_gpu_device_from_yaml_file(
@@ -117,14 +118,15 @@ if __name__ == "__main__":
     preprocessor = TLMPreprocessor(
         args=model_args, tokenizer=tokenizer)
     dm = Seq2SeqDataManager(args, model_args, preprocessor, process_id, args.client_num_per_round)
+    
     train_data_num, train_data_global, test_data_global, train_data_local_num_dict, \
     train_data_local_dict, test_data_local_dict, num_clients = dm.load_federated_data(process_id=process_id)
-
     # start FedAvg algorithm
     # for distributed algorithm, train_data_gloabl and test_data_global are required
     if process_id == 0:
         client_trainer.test_dl = test_data_global
     args.client_num_in_total = num_clients
+    args.is_mobile = 0
 
     fl_algorithm = get_fl_algorithm_initializer(args.fl_algorithm)
     fl_algorithm(process_id, worker_number, device, comm, client_model, train_data_num,

@@ -45,7 +45,7 @@ if __name__ == "__main__":
     print(device)
 
     # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
-    wandb.init(project="fednlp", entity="automl", name="FedNLP-Centralized" +
+    wandb.init(project="squad", entity="cdq", name="Adapter-FedNLP-Centralized" +
                                                 "-SE-" + str(args.dataset) + "-" + str(args.model_name),
         config=args)
 

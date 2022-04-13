@@ -69,14 +69,10 @@ if __name__ == "__main__":
                  ", process Name = " + str(psutil.Process(os.getpid())))
 
     # logging.info("process_id = %d, size = %d" % (process_id, worker_number))
-
-    if process_id == 0:
-        # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
-        wandb.init(project="fednlp", entity="automl", name="FedNLP-" + str(args.fl_algorithm) +
-                                                           "-TC-" + str(args.dataset) + "-" + str(
-            args.model_name) + "-freeze-" + args.freeze_layers if args.freeze_layers else "",
-                   config=args)
-
+    # if process_id == 0:
+    #     # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
+        # wandb.init(project="W&D-Trail230", entity="cdq", name="Watch-New-FL-TC-BERT-"+ str(args.dataset) + "-Adapter-Size-32-Freeze-" + args.freeze_layers if args.freeze_layers else "", config=args)
+        
     # device: check "gpu_mapping.yaml" to see how to define the topology
     device = mapping_processes_to_gpu_device_from_yaml_file(
         process_id, worker_number, args.gpu_mapping_file, args.gpu_mapping_key)
@@ -96,7 +92,10 @@ if __name__ == "__main__":
     model_args.model_type = args.model_type
     model_args.load(model_args.model_name)
     model_args.num_labels = num_labels
-    model_args.update_from_dict({"fl_algorithm": args.fl_algorithm,
+    model_args.update_from_dict({"depth": args.depth,
+                                 "width": args.width,
+                                 "freq": args.freq,
+                                 "fl_algorithm": args.fl_algorithm,
                                  "freeze_layers": args.freeze_layers,
                                  "epochs": args.epochs,
                                  "learning_rate": args.lr,
@@ -142,6 +141,9 @@ if __name__ == "__main__":
     if process_id == 0:
         client_trainer.test_dl = test_data_global
     args.client_num_in_total = num_clients
+
+    # speed up aggregation
+    args.is_mobile = 0
 
     fl_algorithm = get_fl_algorithm_initializer(args.fl_algorithm)
     fl_algorithm(process_id, worker_number, device, comm, client_model, train_data_num,

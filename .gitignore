@@ -22,6 +22,7 @@ wandb
 ./*/*/*/wandb
 ./*/*/*/*/wandb
 ./*/*/*/*/*/wandb
+./*/*/*/*/*/*/wandb
 
 
 # *.txt
@@ -67,3 +68,13 @@ experiments/centralized/transformer_exps/output/*
 experiments/distributed/transformer_exps/output/*
 experiments/distributed/transformer_exps/*/tmp/fedml
 experiments/centralized/transformer_exps/tmp/fedml
+
+# FedML
+FedML
+
+# Cache&Model
+experiments/distributed/transformer_exps/*/cache_dir
+experiments/distributed/transformer_exps/*/tmp
+experiments/distributed/transformer_exps/*/~
+experiments/centralized/transformer_exps/~
+experiments/distributed/transformer_exps/run_tc_exps/Obsolete

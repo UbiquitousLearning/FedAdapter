@@ -47,7 +47,7 @@ class SpanExtractionTrainer:
         self.train_dl = train_dl
         self.test_dl = test_dl
 
-    def train_model(self, device=None):
+    def train_model(self, device=None,rounds=0):
         if not device:
             device = self.device
 

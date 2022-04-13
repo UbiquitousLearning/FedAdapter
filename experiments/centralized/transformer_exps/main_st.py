@@ -43,10 +43,10 @@ if __name__ == "__main__":
     set_seed(args.manual_seed)
 
     # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
-    wandb.init(project="fednlp", entity="automl", name="FedNLP-Centralized" +
-                                                "-ST-" + str(args.dataset) + "-" + str(args.model_name),
-        config=args)
 
+    wandb.init(project="testt", entity="cdq", name="Watch-Depth-ST-Adapter-FedNLP-Centralized" +
+                                                "-TC-" + str(args.dataset) + "-freeze-" + args.freeze_layers if args.freeze_layers else "",
+        config=args)
     # device
     device = torch.device("cuda:0")
 
@@ -62,6 +62,7 @@ if __name__ == "__main__":
     model_args.num_labels = num_labels
     model_args.fl_algorithm = ""
     model_args.update_from_dict({"epochs": args.epochs,
+                              "freeze_layers": args.freeze_layers,
                               "learning_rate": args.learning_rate,
                               "gradient_accumulation_steps": args.gradient_accumulation_steps,
                               "do_lower_case": args.do_lower_case,

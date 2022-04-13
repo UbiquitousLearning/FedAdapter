@@ -61,12 +61,12 @@ For text_classification data we use their natural label to form the paritition s
 ### Usage
 
 ```bash
-DATA_DIR=~/fednlp_data/
+DATA_DIR=/data/cdq/fednlp_data/
 
 python -m data.advanced_partition.niid_label \
 --client_number 100 \
 --data_file ${DATA_DIR}/data_files/20news_data.h5 \
---partition_file ${DATA_DIR}/partition_files/20news_partition.h5 \
+--partition_file ${DATA_DIR}/partition_files/20news_partition_500.h5 \
 --task_type text_classification \
 --skew_type label \
 --seed 42 \

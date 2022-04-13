@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../../../")))
 sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../../../../")))
 
 from training.fed_trainer_transformer import FedTransformerTrainer
-from experiments.distributed.transformer_exps.initializer import add_federated_args, set_seed, create_model, \
+from experiments.distributed.transformer_exps.initializer import add_federated_args, create_model_p, set_seed, create_model, \
     get_fl_algorithm_initializer
 from data_preprocessing.seq_tagging_preprocessor import TLMPreprocessor
 from training.st_transformer_trainer import SeqTaggingTrainer
@@ -60,9 +60,10 @@ if __name__ == "__main__":
 
     if process_id == 0:
         # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
-        wandb.init(project="fednlp", entity="automl",
-                   name="FedNLP-" + str(args.fl_algorithm) + "-ST-" + str(args.dataset) + "-" + str(args.model_name),
-                   config=args)
+        # wandb.init(project="test", entity="cdq", name="Watch-New-FedNLP-ST-Adapter-Client5-Batch_num-417-Case-10" , config=args)
+        # wandb.init(project="ST-Inherit-Trail060", entity="cdq", name="Watch-New-FL-ST-BERT-"+ str(args.dataset) + "-Adapter-Size-32-BN-100-Freeze-" + args.freeze_layers if args.freeze_layers else "", config=args)
+
+        wandb.init(project="Parallelism-ST", entity="cdq", name="Watch-New-FL-ST-BERT-"+ str(args.client_num_per_round) + "-Adapter", config=args)
 
     # device: check "gpu_mapping.yaml" to see how to define the topology
     device = mapping_processes_to_gpu_device_from_yaml_file(
@@ -83,6 +84,7 @@ if __name__ == "__main__":
     model_args.load(model_args.model_name)
     model_args.num_labels = num_labels
     model_args.update_from_dict({"fl_algorithm": args.fl_algorithm,
+                                 "freeze_layers": args.freeze_layers,
                                  "epochs": args.epochs,
                                  "learning_rate": args.lr,
                                  "fedprox_mu": args.fedprox_mu,
@@ -106,7 +108,7 @@ if __name__ == "__main__":
                                  "is_debug_mode": args.is_debug_mode
                                  })
     model_args.config["num_labels"] = num_labels
-    model_config, client_model, tokenizer = create_model(
+    model_config, client_model, tokenizer = create_model_p(
         model_args, formulation="seq_tagging")
 
     # create trainer
@@ -128,6 +130,9 @@ if __name__ == "__main__":
     # for distributed algorithm, train_data_gloabl and test_data_global are required
     args.client_num_in_total = num_clients
 
+    # speed up aggregation
+    args.is_mobile = 0
+    
     fl_algorithm = get_fl_algorithm_initializer(args.fl_algorithm)
     fl_algorithm(process_id, worker_number, device, comm, client_model, train_data_num,
                  train_data_global, test_data_global, train_data_local_num_dict,

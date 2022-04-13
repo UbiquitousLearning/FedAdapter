@@ -2,6 +2,7 @@
 # coding: utf-8
 
 from __future__ import absolute_import, division, print_function
+from cProfile import label
 
 import copy
 import logging
@@ -45,12 +46,15 @@ class SeqTaggingTrainer:
         self.tokenizer = tokenizer
         self.pad_token_label_id = self.args.pad_token_label_id
 
+        # freeze
+        self.freeze_layers = args.freeze_layers.split(",") if args.freeze_layers else []
+
     def set_data(self, train_dl, test_dl=None):
         # Used for fedtrainer
         self.train_dl = train_dl
         self.test_dl = test_dl
 
-    def train_model(self, device=None):
+    def train_model(self, device=None,rounds=0):
         if not device:
             device = self.device
 
@@ -59,7 +63,7 @@ class SeqTaggingTrainer:
         # build optimizer and scheduler
         iteration_in_total = len(
             self.train_dl) // self.args.gradient_accumulation_steps * self.args.epochs
-        optimizer, scheduler = self.build_optimizer(self.model, iteration_in_total)
+        optimizer, scheduler = self.build_optimizer(self.model, iteration_in_total,rounds)
 
         # training result
         global_step = 0
@@ -68,9 +72,16 @@ class SeqTaggingTrainer:
         if self.args.fl_algorithm == "FedProx":
             global_model = copy.deepcopy(self.model)
 
+
+        import random
+        batch_chosen = random.sample(range(0,417),100)
+        # logging.info("Batch chosen is %s", str(batch_chosen))
+
         for epoch in range(0, self.args.epochs):
 
             for batch_idx, batch in enumerate(self.train_dl):
+                if batch_idx not in batch_chosen:
+                    continue
                 self.model.train()
                 batch = tuple(t for t in batch)
                 # dataset = TensorDataset(all_guid, all_input_ids, all_input_mask, all_segment_ids, all_label_ids)
@@ -81,7 +92,6 @@ class SeqTaggingTrainer:
                 output = self.model(x)
                 logits = output[0]
                 loss_fct = CrossEntropyLoss()
-
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
                 if self.args.fl_algorithm == "FedProx":
                     fed_prox_reg = 0.0
@@ -215,6 +225,7 @@ class SeqTaggingTrainer:
         logging.info(result)
 
         os.makedirs(eval_output_dir, exist_ok=True)
+        # self.model.save_adapter(self.args.output_dir, 'a0')
         output_eval_file = os.path.join(eval_output_dir, "eval_results.txt")
         with open(output_eval_file, "w") as writer:
             if self.args.classification_report:
@@ -228,10 +239,11 @@ class SeqTaggingTrainer:
 
         return result, model_outputs, None
 
-    def build_optimizer(self, model, iteration_in_total):
+    def build_optimizer(self, model, iteration_in_total,rounds):
         warmup_steps = math.ceil(iteration_in_total * self.args.warmup_ratio)
         self.args.warmup_steps = warmup_steps if self.args.warmup_steps == 0 else self.args.warmup_steps
         logging.info("warmup steps = %d" % self.args.warmup_steps)
+        # self.freeze_model_parameters_trail(model,rounds)
         if self.args.fl_algorithm == "FedOPT" or self.args.fl_algorithm == "":
             optimizer = AdamW(model.parameters(), lr=self.args.learning_rate, eps=self.args.adam_epsilon)
         else:
@@ -240,6 +252,143 @@ class SeqTaggingTrainer:
             optimizer, num_warmup_steps=self.args.warmup_steps, num_training_steps=iteration_in_total
         )
         return optimizer, scheduler
+    
+    def freeze_model_parameters_trail(self, model, rounds):
+        # origin
+        for param in model.parameters(): # activate all gradients
+            param.requires_grad = True
+        model.train_adapter("a0")
+        
+        # Find Optimal depth (and width) dynamically through Trail&Error.
+        layers = [0,1,2,3,4,5,6,7,8,9,10,11]
+        logging.info(self.freeze_layers)
+        depth = str2list(self.freeze_layers[0]) # 每轮对应的模型深度
+        trail_round = str2list(self.freeze_layers[1]) # 每个深度对应的trail 轮数
+        logging.info("freeze args: %s" % str(depth) + " " + str(trail_round) + " " + str(self.freeze_layers[2]))
+        freeze_layers = layers[:12-int(self.freeze_layers[2])] # default 是 current/new depth
+        for r in trail_round: # 如果当前轮数小于trail round的最大值，说明需要先复现之前的运行
+            if rounds <= r: # old rounds
+                freeze_layers = layers[:12-depth[trail_round.index(r)]]
+                break
+            
+        modules = list()
+        logging.info("freeze layers: %s" % str(freeze_layers))
+        for layer_idx in freeze_layers:
+            if layer_idx == "e":
+                modules.append(model.bert.embeddings)
+            elif layer_idx == "h":
+                modules.append(model.heads)
+            else:
+                modules.append(model.bert.encoder.layer[int(layer_idx)])
+
+        for module in modules:
+            for param in module.parameters():
+                param.requires_grad = False
+        logging.info(get_parameter_number(model))
+
+    def freeze_model_parameters(self, model,rounds):
+        modules = list()        
+        # origin
+        logging.info("freeze layers: %s" % str(self.freeze_layers))
+        for layer_idx in self.freeze_layers:
+            if layer_idx == "e":
+                modules.append(model.distilbert.embeddings)
+            else:
+                modules.append(model.distilbert.transformer.layer[int(layer_idx)])
+        for module in modules:
+            for param in module.parameters():
+                param.requires_grad = False
+        logging.info(get_parameter_number(model))
+        
+        # # per round adaptive
+        # modules = list()
+        # L1 = [0,1,2,3,4,5,6,7,8]
+        # L2 = []
+        # L3 = [9]
+        
+        # # activate all grads
+        # self.freeze_layers = ['e', '0', '1', '2', '3', '4', '5'] 
+        # logging.info("activate all grads")
+        # for layer_idx in self.freeze_layers:
+        #     if layer_idx == "e":
+        #         modules.append(model.distilbert.embeddings)
+        #     else:
+        #         modules.append(model.distilbert.transformer.layer[int(layer_idx)])
+        # for module in modules:
+        #     for param in module.parameters():
+        #         param.requires_grad = True
+        # model.train_adapter("rotten_tomatoes") # enable adapters
+
+        # modules = list()
+
+        # if rounds < 20: 
+        #     self.freeze_layers = ['e', '0', '1', '2','3','4']   # ['e', '0', '1', '2', '3', '4', '5'] 
+        #     logging.info("freeze layers: %s" % str(self.freeze_layers))
+        #     for layer_idx in self.freeze_layers:
+        #         if layer_idx == "e":
+        #             modules.append(model.distilbert.embeddings)
+        #         else:
+        #             modules.append(model.distilbert.transformer.layer[int(layer_idx)])
+        #     for module in modules:
+        #         for param in module.parameters():
+        #             param.requires_grad = False
+        # elif rounds < 60: 
+        #     self.freeze_layers = ['e', '0', '1','2','3'] 
+        #     logging.info("freeze layers: %s" % str(self.freeze_layers))
+        #     for layer_idx in self.freeze_layers:
+        #         if layer_idx == "e":
+        #             modules.append(model.distilbert.embeddings)
+        #         else:
+        #             modules.append(model.distilbert.transformer.layer[int(layer_idx)])
+        #     for module in modules:
+        #         for param in module.parameters():
+        #             param.requires_grad = False
+        # elif rounds < 100: 
+        #     self.freeze_layers = ['e', '0', '1', '2']
+        #     logging.info("freeze layers: %s" % str(self.freeze_layers))
+        #     for layer_idx in self.freeze_layers:
+        #         if layer_idx == "e":
+        #             modules.append(model.distilbert.embeddings)
+        #         else:
+        #             modules.append(model.distilbert.transformer.layer[int(layer_idx)])
+        #     for module in modules:
+        #         for param in module.parameters():
+        #             param.requires_grad = False
+        # elif rounds < 140: 
+        #     self.freeze_layers = ['e', '0', '1']
+        #     logging.info("freeze layers: %s" % str(self.freeze_layers))
+        #     for layer_idx in self.freeze_layers:
+        #         if layer_idx == "e":
+        #             modules.append(model.distilbert.embeddings)
+        #         else:
+        #             modules.append(model.distilbert.transformer.layer[int(layer_idx)])
+        #     for module in modules:
+        #         for param in module.parameters():
+        #             param.requires_grad = False
+        # elif rounds < 180: 
+        #     self.freeze_layers = ['e', '0']
+        #     logging.info("freeze layers: %s" % str(self.freeze_layers))
+        #     for layer_idx in self.freeze_layers:
+        #         if layer_idx == "e":
+        #             modules.append(model.distilbert.embeddings)
+        #         else:
+        #             modules.append(model.distilbert.transformer.layer[int(layer_idx)])
+        #     for module in modules:
+        #         for param in module.parameters():
+        #             param.requires_grad = False
+        # else: 
+        #     self.freeze_layers = ['e']
+        #     logging.info("freeze layers: %s" % str(self.freeze_layers))
+        #     for layer_idx in self.freeze_layers:
+        #         if layer_idx == "e":
+        #             modules.append(model.distilbert.embeddings)
+        #         else:
+        #             modules.append(model.distilbert.transformer.layer[int(layer_idx)])
+        #     for module in modules:
+        #         for param in module.parameters():
+        #             param.requires_grad = False
+        # logging.info(get_parameter_number(model))
+
 
     def _convert_tokens_to_word_logits(self, input_ids, label_ids, attention_mask, logits):
 
@@ -271,3 +420,13 @@ class SeqTaggingTrainer:
         word_logits.append(tmp)
 
         return word_logits
+
+def str2list(a):
+    l = a.split('[')[1].split(']')[:-1][0].split('.')
+    l = [int(i) for i in l]
+    return l
+
+def get_parameter_number(net):
+    total_num = sum(p.numel() for p in net.parameters())
+    trainable_num = sum(p.numel() for p in net.parameters() if p.requires_grad)
+    return {'Total': total_num, 'Trainable': trainable_num}

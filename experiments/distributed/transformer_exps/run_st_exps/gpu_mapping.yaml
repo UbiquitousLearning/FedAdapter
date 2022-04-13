@@ -5,8 +5,30 @@
 #     host_name_node0: [num_of_processes_on_GPU0, num_of_processes_on_GPU1, num_of_processes_on_GPU2, num_of_processes_on_GPU3, ..., num_of_processes_on_GPU_n]
 #     host_name_node1: [num_of_processes_on_GPU0, num_of_processes_on_GPU1, num_of_processes_on_GPU2, num_of_processes_on_GPU3, ..., num_of_processes_on_GPU_n]
 #     host_name_node_m: [num_of_processes_on_GPU0, num_of_processes_on_GPU1, num_of_processes_on_GPU2, num_of_processes_on_GPU3, ..., num_of_processes_on_GPU_n]
+cdq-16:
+    NVIDIA_A40: [0, 0, 0, 0, 4, 4, 4, 5]
+    
+cdq-10:
+    NVIDIA_A40: [0, 0, 0, 0, 4, 2, 2, 3]
+
+cdq-5:
+    # NVIDIA_A40: [0, 0, 2, 0, 0, 0, 2, 2] # 1
+    NVIDIA_A40: [0, 0, 0, 0, 2, 2, 2, 0] # 2
+    # NVIDIA_A40: [2, 2, 1, 1, 0, 0, 0, 0] # 2
+    
+cdq-8:
+    NVIDIA_A40: [0, 0, 0, 0, 2, 2, 2, 3]
+
+cdq-4:
+    NVIDIA_A40: [0, 0, 0, 0, 1, 1, 1, 2]
 
 
+cdq-2:
+    NVIDIA_A40: [0, 0, 0, 0, 1, 1, 1, 0]
+
+cdq-1:
+    NVIDIA_A40: [1, 1, 0, 0, 0, 0, 0, 0]
+    
 mapping_lambda-server2:
     lambda-server2: [0, 0, 0, 0, 3, 2, 3, 3]
 
