@@ -6,6 +6,10 @@ S_LR=$4
 MU=$5
 ROUND=$6
 WORKER_NUM=$7
+LAYERS=$8
+DEPTH=$9
+TIME=$10
+TYPE=$11
 
 LOG_FILE="fedavg_transformer_st.log"
 
@@ -35,14 +39,17 @@ python -m fedavg_main_st \
   --do_lower_case True \
   --train_batch_size 4 \
   --eval_batch_size 4 \
-  --max_seq_length 128 \
+  --max_seq_length 256 \
   --lr $C_LR \
   --server_lr $S_LR \
   --fedprox_mu $MU \
   --epochs 1 \
-  --output_dir "/tmp/fedavg_${DATA_NAME}_output/" \
-  --fp16
-  # --freeze_layers $LAYERS
+  --output_dir "./tmp/${DATA_NAME}_fedavg_output_${TYPE}-${DEPTH}-${TIME}/" \
+  --fp16 \
+  --freeze_layers $LAYERS \
+  --depth $DEPTH \
+  --freq $TIME \
+  --type $TYPE
   # 2> ${LOG_FILE} &
 
 # sh run_seq_tagging.sh FedAvg "niid_cluster_clients=100_alpha=5.0" 1e-5 0.1 0.5 30

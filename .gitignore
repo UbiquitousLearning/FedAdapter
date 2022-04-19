@@ -77,4 +77,4 @@ experiments/distributed/transformer_exps/*/cache_dir
 experiments/distributed/transformer_exps/*/tmp
 experiments/distributed/transformer_exps/*/~
 experiments/centralized/transformer_exps/~
-experiments/distributed/transformer_exps/run_tc_exps/Obsolete
+experiments/distributed/transformer_exps/*/Obsolete

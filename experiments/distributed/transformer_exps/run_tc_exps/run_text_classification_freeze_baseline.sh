@@ -1,4 +1,4 @@
-# cd /home/cdq/FedNLP/experiments/distributed/transformer_exps/run_tc_exps/ && conda activate fednlp && sh run_text_classification_semeval.sh FedAvg "niid_label_clients=100_alpha=100" 0.1 0.1 10000 5
+# cd /home/cdq/FedNLP/experiments/distributed/transformer_exps/run_tc_exps/ && conda activate fednlp && sh run_text_classification_freeze.sh FedAvg "uniform" 0.1 1 3000 5 e,0,1,2,3,4
 FL_ALG=$1
 PARTITION_METHOD=$2
 C_LR=$3
@@ -6,22 +6,25 @@ S_LR=$4
 ROUND=$5
 WORKER_NUM=$6
 LAYERS=$7
+DEPTH=$8
+TIME=$9
+DATA=$10
 
 LOG_FILE="fedavg_transformer_tc.log"
 # WORKER_NUM=10
 CI=0
 
 DATA_DIR=/data/cdq/fednlp_data/
-DATA_NAME=semeval_2010_task8
+DATA_NAME=$DATA
 PROCESS_NUM=`expr $WORKER_NUM + 1`
 echo $PROCESS_NUM
 
 hostname > mpi_host_file
 
 mpirun -np $PROCESS_NUM -hostfile mpi_host_file \
-python -m fedavg_main_tc \
+python -m fedavg_main_tc_baseline \
   --gpu_mapping_file "gpu_mapping.yaml" \
-  --gpu_mapping_key cdq-${WORKER_NUM} \
+  --gpu_mapping_key cdq-${WORKER_NUM}-1 \
   --client_num_per_round $WORKER_NUM \
   --comm_round $ROUND \
   --ci $CI \
@@ -30,8 +33,8 @@ python -m fedavg_main_tc \
   --partition_file "${DATA_DIR}/partition_files/${DATA_NAME}_partition.h5" \
   --partition_method $PARTITION_METHOD \
   --fl_algorithm $FL_ALG \
-  --model_type distilbert \
-  --model_name distilbert-base-uncased \
+  --model_type bert \
+  --model_name bert-base-uncased \
   --do_lower_case True \
   --train_batch_size 4 \
   --eval_batch_size 4 \
@@ -39,8 +42,9 @@ python -m fedavg_main_tc \
   --lr $C_LR \
   --server_lr $S_LR \
   --epochs 1 \
-  --output_dir "/tmp/fedavg_${DATA_NAME}_output/" \
-  --freeze_layers $LAYERS
+  --output_dir "./tmp/${DATA_NAME}_fedavg_output_baseline-${DEPTH}-${TIME}/" \
+  --freeze_layers $LAYERS 
+
 
 
 # sh run_text_classification.sh FedAvg "niid_label_clients=100_alpha=5.0" 5e-5 0.1 50

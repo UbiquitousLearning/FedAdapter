@@ -23,7 +23,7 @@ from FedML.fedml_api.distributed.utils.gpu_mapping import mapping_processes_to_g
 
 from FedML.fedml_api.distributed.fedavg.FedAvgAPI import FedML_init
 
-from experiments.distributed.transformer_exps.initializer import add_federated_args, create_model_o, create_model_p, set_seed, create_model, \
+from experiments.distributed.transformer_exps.initializer import add_federated_args, set_seed, create_model_o, create_model, \
     get_fl_algorithm_initializer
 
 import argparse
@@ -45,6 +45,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser = add_federated_args(parser)
     args = parser.parse_args()
+    args.evaluate_during_training_steps = 200 # baseline flag
 
     # customize the log format
     logging.basicConfig(
@@ -70,17 +71,9 @@ if __name__ == "__main__":
 
     # logging.info("process_id = %d, size = %d" % (process_id, worker_number))
     if process_id == 0:
-        # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
-        # wandb.init(project="test", entity="cdq", name="FedNLP-" + str(args.fl_algorithm) + "-LR-"+ str(args.lr) +
-        #                                                    "-TC-" + str(args.dataset) + "-" + str(args.model_name) , config=args)
-        wandb.init(project="Parallelism-TC", entity="cdq", name="Watch-New-FL-TC-BERT-"+ str(args.client_num_per_round) + "-Origin", config=args)
-        # wandb.init(project="new-adaptive", entity="cdq", name="Watch-New-FL-TC-BERT-Adapter-Size-32-32-32-Parallel-Remove-0,1,2,3,4,5,6", config=args)
+    #     # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
+        wandb.init(project="BaseLine", entity="cdq", name="Watch-New-FL-TC-BERT-"+ str(args.dataset) + "-Adapter-" + args.freeze_layers if args.freeze_layers else "", config=args)
         
-        # "+ args.freeze_layers if args.freeze_layers else "" 
-        # wandb.init(project="new-adaptive", entity="cdq", name="Origin-" + "Client-5", config=args)
-        # wandb.init(project="new-adaptive", entity="cdq", name="A-Freeze-Stack-8-" + args.freeze_layers + "-Client-5", config=args)
-        # Adapter-Length256-freeze-e,0,1,2,3-Round3000
-
     # device: check "gpu_mapping.yaml" to see how to define the topology
     device = mapping_processes_to_gpu_device_from_yaml_file(
         process_id, worker_number, args.gpu_mapping_file, args.gpu_mapping_key)

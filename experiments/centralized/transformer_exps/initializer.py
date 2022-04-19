@@ -54,11 +54,11 @@ def create_model(args, formulation="classification"):
     config = config_class.from_pretrained(args.model_name, **args.config)
     model = model_class.from_pretrained(args.model_name, config=config)
 
-    width = args.width
+    width = 48
     u_adapter_size = 8 # 单位宽度的adapter
-    rf = 768 / u_adapter_size
+    rf = int(768 / u_adapter_size)
 
-    adapter_num = width / u_adapter_size
+    adapter_num = int(width / u_adapter_size)
 
     adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':rf, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
 
@@ -78,23 +78,23 @@ def create_model(args, formulation="classification"):
     # )
     # model.train_adapter("test")
     # Parallel
-    model.add_adapter("a0",config=adapter_config)
-    model.add_classification_head(
-        "a0",
-        num_labels=20, # 20 for TC; ? for ST.
-        layers=1
-    ) 
+    # model.add_adapter("a0",config=adapter_config)
+    # model.add_classification_head(
+    #     "a0",
+    #     num_labels=20, # 20 for TC; ? for ST.
+    #     layers=1
+    # ) 
 
-    model.add_adapter("a1",config=adapter_config)
-    model.add_classification_head(
-        "a1",
-        num_labels=20, # 20 for TC; ? for ST.
-        layers=1
-    )
+    # model.add_adapter("a1",config=adapter_config)
+    # model.add_classification_head(
+    #     "a1",
+    #     num_labels=20, # 20 for TC; ? for ST.
+    #     layers=1
+    # )
 
 
-    model.set_active_adapters(Parallel("a0", "a1"))
-    model.train_adapter(Parallel("a0", "a1"))
+    # model.set_active_adapters(Parallel("a0", "a1"))
+    # model.train_adapter(Parallel("a0", "a1"))
 
 
 
@@ -203,5 +203,8 @@ def add_centralized_args(parser):
     # freeze related
     parser.add_argument('--freeze_layers', type=str, default='', metavar='N',
                         help='freeze which layers')
+
+    parser.add_argument('--width', type=int, default=8,
+                        help='start-up width (adapter size)')
 
     return parser

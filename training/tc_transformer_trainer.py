@@ -162,8 +162,11 @@ class TextClassificationTrainer:
         self.model.eval()
         # logging.info("saving model to ~/model_cache")
         # torch.save(self.model.state_dict(),"/home/cdq/model_cache/model_cache")
+        # logging.info(self.args)
         logging.info("len(test_dl) = %d, n_batches = %d" % (len(self.test_dl), n_batches))
         for i, batch in enumerate(self.test_dl):
+            if self.args.evaluate_during_training_steps == 6:
+                logging.info(i)
             with torch.no_grad():
                 batch = tuple(t.to(device) for t in batch)
                 # sample_index_list = batch[0].cpu().numpy()
@@ -209,11 +212,15 @@ class TextClassificationTrainer:
         if result["acc"] > self.best_accuracy:
             self.best_accuracy = result["acc"]
         logging.info("best_accuracy = %f" % self.best_accuracy)
-        # wandb.log(result)
+        
+        if self.args.evaluate_during_training_steps == 200:
+            wandb.log(result)
 
-        # wandb.log({"Evaluation Accuracy (best)": self.best_accuracy})
-        # wandb.log({"Evaluation Accuracy": result["acc"]})
-        # wandb.log({"Evaluation Loss": result["eval_loss"]})
+            wandb.log({"Evaluation Accuracy (best)": self.best_accuracy})
+            wandb.log({"Evaluation Accuracy": result["acc"]})
+            wandb.log({"Evaluation Loss": result["eval_loss"]})
+        else:
+            pass
 
         self.results.update(result)
         logging.info(self.results)
@@ -247,7 +254,8 @@ class TextClassificationTrainer:
         # freeze exps only apply for distilbert and bert
         if self.args.model_type == "bert" and self.args.width:
             logging.info(get_parameter_number(model))
-            self.freeze_model_parameters_trail(model,rounds)
+            if self.args.evaluate_during_training_steps != 6:
+                self.freeze_model_parameters_trail(model,rounds)
 
         if self.args.fl_algorithm == "FedOPT" or self.args.fl_algorithm == "":
             optimizer = AdamW(model.parameters(), lr=self.args.learning_rate, eps=self.args.adam_epsilon)
@@ -289,7 +297,7 @@ class TextClassificationTrainer:
         # width = 8 * 4
         width = int(self.freeze_layers[3])
         logging.info("used width: %s" % str(width))
-        for i in range(int(width / 8)):
+        for i in range(int(width /8)):
             # modules.append(model.bert.encoder.layer[int(layer_idx)].output.adapters[str(j)])
             adapter_list.append(str(i))
         
@@ -310,13 +318,22 @@ class TextClassificationTrainer:
             
         modules = list()
         logging.info("freeze layers: %s" % str(freeze_layers))
-        for layer_idx in freeze_layers:
-            if layer_idx == "e":
-                modules.append(model.bert.embeddings)
-            elif layer_idx == "h":
-                modules.append(model.heads)
-            else:
-                modules.append(model.bert.encoder.layer[int(layer_idx)])
+        if self.args.evaluate_during_training_steps == 200:
+            for layer_idx in freeze_layers:
+                if layer_idx == "e":
+                    modules.append(model.bert.embeddings)
+                elif layer_idx == "h":
+                    modules.append(model.heads)
+                else:
+                    modules.append(model.bert.encoder.layer[int(layer_idx)])
+        else:
+            for layer_idx in freeze_layers:
+                if layer_idx == "e":
+                    modules.append(model.bert.embeddings)
+                elif layer_idx == "h":
+                    modules.append(model.heads)
+                else:
+                    modules.append(model.bert.encoder.layer[int(layer_idx)])
 
         for module in modules:
             for param in module.parameters():

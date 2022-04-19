@@ -22,9 +22,9 @@ import logging
 from FedML.fedml_api.distributed.fedavg.FedAvgAPI import FedML_FedAvg_distributed
 from FedML.fedml_api.distributed.fedopt.FedOptAPI import FedML_FedOpt_distributed
 from FedML.fedml_api.distributed.fedprox.FedProxAPI import FedML_FedProx_distributed
-# from model.transformer.bert_model import BertForSequenceClassification
-# from model.transformer.distilbert_model import DistilBertForSequenceClassification 
-from transformers import AutoModelWithHeads
+from model.transformer.bert_model import BertForSequenceClassification as OBertForSequenceClassification
+from model.transformer.distilbert_model import DistilBertForSequenceClassification  as OBertForSequenceClassification
+from transformers import AutoModelWithHeads, AutoModel
 from transformers.adapters.composition import Stack, Parallel
 
 
@@ -44,14 +44,14 @@ def create_model_o(args, formulation="classification"):
     # create model, tokenizer, and model config (HuggingFace style)
     MODEL_CLASSES = {
         "classification": {
-            "bert": (BertConfig, BertForSequenceClassification , BertTokenizer),
+            "bert": (BertConfig, AutoModelWithHeads, BertTokenizer),
             "distilbert": (DistilBertConfig, AutoModelWithHeads, DistilBertTokenizer), 
             # AutoModelWithHeads for adapter, DistilBertForSequenceClassification for origin
             # "roberta": (RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer),
             # "albert": (AlbertConfig, AlbertForSequenceClassification, AlbertTokenizer),
         },
         "seq_tagging": {
-            "bert": (BertConfig, BertForTokenClassification, BertTokenizer),
+            "bert": (BertConfig, AutoModelWithHeads, BertTokenizer),
             "distilbert": (DistilBertConfig, AutoModelWithHeads, DistilBertTokenizer),
             # AutoModelWithHeads for adapter, DistilBertForTokenClassification for origin
         },
@@ -64,238 +64,64 @@ def create_model_o(args, formulation="classification"):
             # BartForConditionalGeneration
         }
     }
+    
     config_class, model_class, tokenizer_class = MODEL_CLASSES[formulation][
         args.model_type]
-    # config = config_class.from_pretrained(
-    #     args.model_name, num_labels=args.num_labels, **args.config)
-    config = config_class.from_pretrained(args.model_name, **args.config)
-    model = model_class.from_pretrained(args.model_name, config=config)
-    # model = model_class.from_pretrained(args.output_dir)
-
-    # adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':16, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
-
-
-    # model.add_adapter("0",config=adapter_config)
-    # model.add_adapter("0",config=adapter_config)
-    # model.add_adapter("0",config=adapter_config)
-    # model.add_adapter("0",config=adapter_config)
-    # model.add_adapter("0",config=adapter_config)
-    # model.add_adapter("0",config=adapter_config)
-    # model.train_adapter("a0")
-
-    # Dynamic Adapter
-    # adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':16, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
-    # import os
-    # if os.path.exists(os.path.join(args.output_dir, "adapter_config.json")):
-    #     logging.info("There is trained adapters, loaded!")
-    #     model.load_adapter(args.output_dir)
-    # else:
-    #     model.add_adapter("0",config=adapter_config)
-
-    # model.train_adapter("0")
-
-    # Variable width adapter
-    # width = 48
-    # u_adapter_size = 48 # 单位宽度的adapter
-    # rf = int(768 / u_adapter_size)
-
-    # adapter_num = int(width / u_adapter_size)
-
-    # adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':rf, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
-
-    # adapter_list = []
-    # for i in range(adapter_num):
-    #     model.add_adapter(str(i),config=adapter_config)
-    #     adapter_list.append(str(i))
-
-    # model.set_active_adapters(adapter_list)
-    # model.train_adapter(adapter_list)
-
-    # model.add_adapter("a1",config=adapter_config)
-    # model.add_classification_head(
-    #     "a1",
-    #     num_labels=20, # 20 for TC; ? for ST.
-    #     layers=1
-    # )
-
-    # model.add_adapter("a2",config=adapter_config)
-    # model.add_classification_head(
-    #     "a2",
-    #     num_labels=20, # 20 for TC; ? for ST.
-    #     layers=1
-    # )
-    # model.add_adapter("a3",config=adapter_config)
-    # model.add_adapter("a4",config=adapter_config)
-    # cd ~/FedNLP/experiments/distributed/transformer_exps/run_tc_exps && conda activate fednlp && sh run_text_classification_freeze.sh FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5,6
-    # model.set_active_adapters(Parallel("a0", "a1", "a2"))
-    # model.train_adapter(Parallel("a0", "a1", "a2"))
-
-    # model.set_active_adapters(Stack("a0", "a1", "a2", "a3", "a4"))
-    # model.train_adapter(Stack("a0", "a1", "a2", "a3", "a4"))
-
-    # Adapter Fusion
-    # from transformers.adapters.composition import Fuse
-    # model.load_adapter("nli/multinli@ukp", load_as="multinli", with_head=False)
-    # model.load_adapter("sts/qqp@ukp", with_head=False)
-    # model.load_adapter("nli/qnli@ukp", with_head=False)
-    # # Add a fusion layer for all loaded adapters
-    # model.add_adapter_fusion(Fuse("multinli", "qqp", "qnli"))
-    # model.set_active_adapters(Fuse("multinli", "qqp", "qnli"))
-
-    # # model.add_classification_head("cb", num_labels=20,layers=1)
-
-    # adapter_setup = Fuse("multinli", "qqp", "qnli")
-    # model.train_adapter_fusion(adapter_setup)   
-
-    # Vanilla Adapter
-    # model.add_adapter("rotten_tomatoes")
-
-    # model.add_classification_head(
-    #     "rotten_tomatoes",
-    #     num_labels=20,
-    #     layers=1
-    # )
-    # model.train_adapter("rotten_tomatoes")
-
-    logging.info(model)
-    
-    if formulation != "seq2seq":
-        tokenizer = tokenizer_class.from_pretrained(
-            args.model_name, do_lower_case=args.do_lower_case)
+    import os
+    # if False:
+    if os.path.exists(os.path.join(args.output_dir, "pytorch_model.bin")) and args.evaluate_during_training_steps != 200:
+        logging.info("There is trained models(adapters), loaded!")
+        config = config_class.from_pretrained(args.output_dir)
+        model = model_class.from_pretrained(args.output_dir)
+        adapter_list = []
+        for i in range(int(64/8)):
+            adapter_list.append(str(i))
+        model.set_active_adapters(adapter_list)
+        model.train_adapter(adapter_list)
+        if formulation != "seq2seq":
+            tokenizer = tokenizer_class.from_pretrained(
+                args.model_name, do_lower_case=args.do_lower_case, local_files_only=True)
+        else:
+            tokenizer = [None, None]
+            tokenizer[0] = tokenizer_class.from_pretrained(args.model_name, local_files_only=True)
+            tokenizer[1]= tokenizer[0]
     else:
-        tokenizer = [None, None]
-        tokenizer[0] = tokenizer_class.from_pretrained(args.model_name)
-        tokenizer[1]= tokenizer[0]
-    # logging.info(self.model)
-    return config, model, tokenizer
+        config = config_class.from_pretrained(args.model_name, **args.config)
+        model = model_class.from_pretrained(args.model_name, config=config)
+        width = 64
+        u_adapter_size = 8 # 单位宽度的adapter
+        rf = int(768 / u_adapter_size)
 
-def create_model_p(args, formulation="classification"):
-    # create model, tokenizer, and model config (HuggingFace style)
-    MODEL_CLASSES = {
-        "classification": {
-            "bert": (BertConfig, BertForSequenceClassification , BertTokenizer),
-            "distilbert": (DistilBertConfig, AutoModelWithHeads, DistilBertTokenizer), 
-            # AutoModelWithHeads for adapter, DistilBertForSequenceClassification for origin
-            # "roberta": (RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer),
-            # "albert": (AlbertConfig, AlbertForSequenceClassification, AlbertTokenizer),
-        },
-        "seq_tagging": {
-            "bert": (BertConfig, BertForTokenClassification, BertTokenizer),
-            "distilbert": (DistilBertConfig, AutoModelWithHeads, DistilBertTokenizer),
-            # AutoModelWithHeads for adapter, DistilBertForTokenClassification for origin
-        },
-        "span_extraction": {
-            "bert": (BertConfig, BertForQuestionAnswering, BertTokenizer),
-            "distilbert": (DistilBertConfig, DistilBertForQuestionAnswering, DistilBertTokenizer),
-        },
-        "seq2seq": {
-            "bart": (BartConfig, BartForConditionalGeneration, BartTokenizer),
-            # BartForConditionalGeneration
-        }
-    }
-    config_class, model_class, tokenizer_class = MODEL_CLASSES[formulation][
-        args.model_type]
-    # config = config_class.from_pretrained(
-    #     args.model_name, num_labels=args.num_labels, **args.config)
-    config = config_class.from_pretrained(args.model_name, **args.config)
-    model = model_class.from_pretrained(args.model_name, config=config)
-    # model = model_class.from_pretrained(args.output_dir)
+        adapter_num = int(width / u_adapter_size)
+        
+        adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':rf, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
+        if args.dataset == "20news":
+            num_labels = 20
+        if args.dataset == "onto":
+            num_labels = 37
+        if args.dataset == "agnews":
+            num_labels = 4
+        if args.dataset == "semeval_2010_task8":
+            num_labels = 19
+        adapter_list = []
+        for i in range(adapter_num):
+            model.add_adapter(str(i),config=adapter_config)
+            adapter_list.append(str(i)) 
 
-    # adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':16, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
-
-
-    # model.add_adapter("0",config=adapter_config)
-    # model.add_adapter("0",config=adapter_config)
-    # model.add_adapter("0",config=adapter_config)
-    # model.add_adapter("0",config=adapter_config)
-    # model.add_adapter("0",config=adapter_config)
-    # model.add_adapter("0",config=adapter_config)
-    # model.train_adapter("a0")
-
-    # Dynamic Adapter
-    # adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':16, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
-    # import os
-    # if os.path.exists(os.path.join(args.output_dir, "adapter_config.json")):
-    #     logging.info("There is trained adapters, loaded!")
-    #     model.load_adapter(args.output_dir)
-    # else:
-    #     model.add_adapter("0",config=adapter_config)
-
-    # model.train_adapter("0")
-
-    # Variable width adapter
-    width = 48
-    u_adapter_size = 48 # 单位宽度的adapter
-    rf = int(768 / u_adapter_size)
-
-    adapter_num = int(width / u_adapter_size)
-
-    adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':rf, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
-
-    adapter_list = []
-    for i in range(adapter_num):
-        model.add_adapter(str(i),config=adapter_config)
-        adapter_list.append(str(i))
-
-    model.set_active_adapters(adapter_list)
-    model.train_adapter(adapter_list)
-
-    # model.add_adapter("a1",config=adapter_config)
-    # model.add_classification_head(
-    #     "a1",
-    #     num_labels=20, # 20 for TC; ? for ST.
-    #     layers=1
-    # )
-
-    # model.add_adapter("a2",config=adapter_config)
-    # model.add_classification_head(
-    #     "a2",
-    #     num_labels=20, # 20 for TC; ? for ST.
-    #     layers=1
-    # )
-    # model.add_adapter("a3",config=adapter_config)
-    # model.add_adapter("a4",config=adapter_config)
-    # cd ~/FedNLP/experiments/distributed/transformer_exps/run_tc_exps && conda activate fednlp && sh run_text_classification_freeze.sh FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5,6
-    # model.set_active_adapters(Parallel("a0", "a1", "a2"))
-    # model.train_adapter(Parallel("a0", "a1", "a2"))
-
-    # model.set_active_adapters(Stack("a0", "a1", "a2", "a3", "a4"))
-    # model.train_adapter(Stack("a0", "a1", "a2", "a3", "a4"))
-
-    # Adapter Fusion
-    # from transformers.adapters.composition import Fuse
-    # model.load_adapter("nli/multinli@ukp", load_as="multinli", with_head=False)
-    # model.load_adapter("sts/qqp@ukp", with_head=False)
-    # model.load_adapter("nli/qnli@ukp", with_head=False)
-    # # Add a fusion layer for all loaded adapters
-    # model.add_adapter_fusion(Fuse("multinli", "qqp", "qnli"))
-    # model.set_active_adapters(Fuse("multinli", "qqp", "qnli"))
-
-    # # model.add_classification_head("cb", num_labels=20,layers=1)
-
-    # adapter_setup = Fuse("multinli", "qqp", "qnli")
-    # model.train_adapter_fusion(adapter_setup)   
-
-    # Vanilla Adapter
-    # model.add_adapter("rotten_tomatoes")
-
-    # model.add_classification_head(
-    #     "rotten_tomatoes",
-    #     num_labels=20,
-    #     layers=1
-    # )
-    # model.train_adapter("rotten_tomatoes")
-
+        model.add_classification_head("0", num_labels=num_labels, layers=1)
+        
+        
+        model.set_active_adapters(adapter_list)
+        model.train_adapter(adapter_list)
+        if formulation != "seq2seq":
+            tokenizer = tokenizer_class.from_pretrained(
+                args.model_name, do_lower_case=args.do_lower_case, local_files_only=True)
+        else:
+            tokenizer = [None, None]
+            tokenizer[0] = tokenizer_class.from_pretrained(args.model_name)
+            tokenizer[1]= tokenizer[0]
     logging.info(model)
-    
-    if formulation != "seq2seq":
-        tokenizer = tokenizer_class.from_pretrained(
-            args.model_name, do_lower_case=args.do_lower_case)
-    else:
-        tokenizer = [None, None]
-        tokenizer[0] = tokenizer_class.from_pretrained(args.model_name)
-        tokenizer[1]= tokenizer[0]
-    # logging.info(self.model)
+        
     return config, model, tokenizer
 
 def create_model(args, formulation="classification"):
@@ -333,7 +159,7 @@ def create_model(args, formulation="classification"):
         config = config_class.from_pretrained(args.output_dir)
         model = model_class.from_pretrained(args.output_dir)
         adapter_list = []
-        for i in range(int(256/8)):
+        for i in range(int(64/8)):
             adapter_list.append(str(i))
         model.set_active_adapters(adapter_list)
         model.train_adapter(adapter_list)
@@ -347,7 +173,7 @@ def create_model(args, formulation="classification"):
     else:
         config = config_class.from_pretrained(args.model_name, **args.config)
         model = model_class.from_pretrained(args.model_name, config=config)
-        width = 256
+        width = 64
         u_adapter_size = 8 # 单位宽度的adapter
         rf = int(768 / u_adapter_size)
 
@@ -597,9 +423,9 @@ def add_federated_args(parser):
     
     parser.add_argument('--freq', type=int, default=60,
                         help='trial frequency (s)')
-    
-    parser.add_argument('--role', type=int, default=0,
-                        help='trial role: normal (0), wider (1), deeper (2)')
+
+    parser.add_argument('--type', type=str, default='shallow', metavar='N',
+                        help='the dirction of trial.')
 
     
 

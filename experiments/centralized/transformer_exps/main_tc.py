@@ -39,7 +39,7 @@ if __name__ == "__main__":
     set_seed(args.manual_seed)
 
     # device
-    device = torch.device("cpu")
+    device = torch.device("cuda:0")
     # logging.info(torch.get_num_threads())
     # logging.info(torch.get_num_threads())
     # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
@@ -59,7 +59,8 @@ if __name__ == "__main__":
     model_args.load(model_args.model_name)
     model_args.num_labels = num_labels
     model_args.fl_algorithm = ""
-    model_args.update_from_dict({"epochs": args.epochs,
+    model_args.update_from_dict({"width": args.width,
+                                 "epochs": args.epochs,
                                  "freeze_layers": args.freeze_layers,
                                  "learning_rate": args.learning_rate,
                                  "gradient_accumulation_steps": args.gradient_accumulation_steps,
@@ -70,7 +71,7 @@ if __name__ == "__main__":
                                  "max_seq_length": args.max_seq_length,
                                  "train_batch_size": args.train_batch_size,
                                  "eval_batch_size": args.eval_batch_size,
-                                 "evaluate_during_training_steps": args.evaluate_during_training_steps,
+                                 "evaluate_during_training_steps": 6,
                                  "fp16": args.fp16,
                                  "data_file_path": args.data_file_path,
                                  "partition_file_path": args.partition_file_path,

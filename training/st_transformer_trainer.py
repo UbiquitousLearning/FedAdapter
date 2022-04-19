@@ -220,11 +220,12 @@ class SeqTaggingTrainer:
             "recall": recall_score(out_label_list, preds_list),
             "f1_score": f1_score(out_label_list, preds_list),
         }
-        wandb.log(result)
+        # wandb.log(result)
         results.update(result)
         logging.info(result)
 
         os.makedirs(eval_output_dir, exist_ok=True)
+        self.model.save_pretrained(self.args.output_dir)
         # self.model.save_adapter(self.args.output_dir, 'a0')
         output_eval_file = os.path.join(eval_output_dir, "eval_results.txt")
         with open(output_eval_file, "w") as writer:
@@ -243,7 +244,8 @@ class SeqTaggingTrainer:
         warmup_steps = math.ceil(iteration_in_total * self.args.warmup_ratio)
         self.args.warmup_steps = warmup_steps if self.args.warmup_steps == 0 else self.args.warmup_steps
         logging.info("warmup steps = %d" % self.args.warmup_steps)
-        # self.freeze_model_parameters_trail(model,rounds)
+        logging.info(get_parameter_number(model))
+        self.freeze_model_parameters_trail(model,rounds)
         if self.args.fl_algorithm == "FedOPT" or self.args.fl_algorithm == "":
             optimizer = AdamW(model.parameters(), lr=self.args.learning_rate, eps=self.args.adam_epsilon)
         else:
@@ -254,14 +256,23 @@ class SeqTaggingTrainer:
         return optimizer, scheduler
     
     def freeze_model_parameters_trail(self, model, rounds):
-        # origin
-        for param in model.parameters(): # activate all gradients
-            param.requires_grad = True
-        model.train_adapter("a0")
+        # Find optimal width
+        logging.info(self.freeze_layers)
+        adapter_list = []
+        modules = list()
+        # width = 8 * 4
+        width = min(int(self.freeze_layers[3]),64)
+        logging.info("used width: %s" % str(width))
+        for i in range(int(width / 8)):
+            # modules.append(model.bert.encoder.layer[int(layer_idx)].output.adapters[str(j)])
+            adapter_list.append(str(i))
+        
+        model.train_adapter(adapter_list)
+        logging.info(get_parameter_number(model))
         
         # Find Optimal depth (and width) dynamically through Trail&Error.
         layers = [0,1,2,3,4,5,6,7,8,9,10,11]
-        logging.info(self.freeze_layers)
+        
         depth = str2list(self.freeze_layers[0]) # 每轮对应的模型深度
         trail_round = str2list(self.freeze_layers[1]) # 每个深度对应的trail 轮数
         logging.info("freeze args: %s" % str(depth) + " " + str(trail_round) + " " + str(self.freeze_layers[2]))

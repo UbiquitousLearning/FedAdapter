@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../../../")))
 sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../../../../")))
 
 from training.fed_trainer_transformer import FedTransformerTrainer
-from experiments.distributed.transformer_exps.initializer import add_federated_args, create_model_p, set_seed, create_model, \
+from experiments.distributed.transformer_exps.initializer import add_federated_args, create_model_o, set_seed, create_model, \
     get_fl_algorithm_initializer
 from data_preprocessing.seq_tagging_preprocessor import TLMPreprocessor
 from training.st_transformer_trainer import SeqTaggingTrainer
@@ -63,7 +63,8 @@ if __name__ == "__main__":
         # wandb.init(project="test", entity="cdq", name="Watch-New-FedNLP-ST-Adapter-Client5-Batch_num-417-Case-10" , config=args)
         # wandb.init(project="ST-Inherit-Trail060", entity="cdq", name="Watch-New-FL-ST-BERT-"+ str(args.dataset) + "-Adapter-Size-32-BN-100-Freeze-" + args.freeze_layers if args.freeze_layers else "", config=args)
 
-        wandb.init(project="Parallelism-ST", entity="cdq", name="Watch-New-FL-ST-BERT-"+ str(args.client_num_per_round) + "-Adapter", config=args)
+        # wandb.init(project="Parallelism-ST", entity="cdq", name="Watch-New-FL-ST-BERT-"+ str(args.client_num_per_round) + "-Adapter", config=args)
+        pass
 
     # device: check "gpu_mapping.yaml" to see how to define the topology
     device = mapping_processes_to_gpu_device_from_yaml_file(
@@ -83,7 +84,10 @@ if __name__ == "__main__":
     model_args.model_type = args.model_type
     model_args.load(model_args.model_name)
     model_args.num_labels = num_labels
-    model_args.update_from_dict({"fl_algorithm": args.fl_algorithm,
+    model_args.update_from_dict({"type": args.type,
+                                 "depth": args.depth,
+                                 "freq": args.freq,
+                                 "fl_algorithm": args.fl_algorithm,
                                  "freeze_layers": args.freeze_layers,
                                  "epochs": args.epochs,
                                  "learning_rate": args.lr,
@@ -108,7 +112,7 @@ if __name__ == "__main__":
                                  "is_debug_mode": args.is_debug_mode
                                  })
     model_args.config["num_labels"] = num_labels
-    model_config, client_model, tokenizer = create_model_p(
+    model_config, client_model, tokenizer = create_model_o(
         model_args, formulation="seq_tagging")
 
     # create trainer
