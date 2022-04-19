@@ -137,8 +137,8 @@ remove_cache_model(args)
 run_id = 0
 
 for dataset in datasets[::-1]:
-    for b in bs:
-        for c in client_num:
+    for b in bs[::-1]:
+        for c in client_num[::-1]:
             args.dataset = dataset
             args.bs = b
             args.client_num = c

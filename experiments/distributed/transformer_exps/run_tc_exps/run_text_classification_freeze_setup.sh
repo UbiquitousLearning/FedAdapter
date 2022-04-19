@@ -23,7 +23,7 @@ echo $PROCESS_NUM
 hostname > mpi_host_file
 
 mpirun -np $PROCESS_NUM -hostfile mpi_host_file \
-python -m fedavg_main_tc_baseline \
+python -m fedavg_main_tc_setup \
   --gpu_mapping_file "gpu_mapping.yaml" \
   --gpu_mapping_key cdq-${WORKER_NUM}-setup \
   --client_num_per_round $WORKER_NUM \
