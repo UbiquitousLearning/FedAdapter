@@ -119,7 +119,7 @@ args.depth = 0
 args.width = 8
 args.time_threshold = 60
 args.max_round = 3000
-
+[[accuracy], [round], [depth]]
 args.dataset = "agnews" # "agnews", "20news", "semeval_2010_task8"
 
 # freeze_layers = [[depth],[round],depth,[width]] 

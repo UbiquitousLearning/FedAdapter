@@ -13,17 +13,15 @@ from transformers import (
     DistilBertForQuestionAnswering,
     BartConfig, 
     BartForConditionalGeneration, 
-    BartTokenizer,
-    BertForSequenceClassification,
-    DistilBertForSequenceClassification 
+    BartTokenizer
 )
 import logging
 
 from FedML.fedml_api.distributed.fedavg.FedAvgAPI import FedML_FedAvg_distributed
 from FedML.fedml_api.distributed.fedopt.FedOptAPI import FedML_FedOpt_distributed
 from FedML.fedml_api.distributed.fedprox.FedProxAPI import FedML_FedProx_distributed
-from model.transformer.bert_model import BertForSequenceClassification as OBertForSequenceClassification
-from model.transformer.distilbert_model import DistilBertForSequenceClassification  as OBertForSequenceClassification
+from model.transformer.bert_model import BertForSequenceClassification
+from model.transformer.distilbert_model import DistilBertForSequenceClassification
 from transformers import AutoModelWithHeads, AutoModel
 from transformers.adapters.composition import Stack, Parallel
 
@@ -68,8 +66,13 @@ def create_model_o(args, formulation="classification"):
     config_class, model_class, tokenizer_class = MODEL_CLASSES[formulation][
         args.model_type]
     import os
+
+    inherit = False
+    if args.evaluate_during_training_steps != 200 and args.evaluate_during_training_steps != 300:
+        inherit = True
+
     # if False:
-    if os.path.exists(os.path.join(args.output_dir, "pytorch_model.bin")) and args.evaluate_during_training_steps != 200:
+    if os.path.exists(os.path.join(args.output_dir, "pytorch_model.bin")) and inherit == True:
         logging.info("There is trained models(adapters), loaded!")
         config = config_class.from_pretrained(args.output_dir)
         model = model_class.from_pretrained(args.output_dir)
@@ -120,7 +123,7 @@ def create_model_o(args, formulation="classification"):
             tokenizer = [None, None]
             tokenizer[0] = tokenizer_class.from_pretrained(args.model_name)
             tokenizer[1]= tokenizer[0]
-    logging.info(model)
+    # logging.info(model)
         
     return config, model, tokenizer
 
@@ -153,8 +156,12 @@ def create_model(args, formulation="classification"):
     # config = config_class.from_pretrained(
     #     args.model_name, num_labels=args.num_labels, **args.config)
     
+    inherit = False
+    # if self.args.evaluate_during_training_steps != 200 and self.args.evaluate_during_training_steps != 300:
+    #     inherit = True
+
     import os
-    if os.path.exists(os.path.join(args.output_dir, "pytorch_model.bin")):
+    if os.path.exists(os.path.join(args.output_dir, "pytorch_model.bin")) and inherit == True:
         logging.info("There is trained models(adapters), loaded!")
         config = config_class.from_pretrained(args.output_dir)
         model = model_class.from_pretrained(args.output_dir)
@@ -173,21 +180,21 @@ def create_model(args, formulation="classification"):
     else:
         config = config_class.from_pretrained(args.model_name, **args.config)
         model = model_class.from_pretrained(args.model_name, config=config)
-        width = 64
-        u_adapter_size = 8 # 单位宽度的adapter
-        rf = int(768 / u_adapter_size)
+        # width = 64
+        # u_adapter_size = 8 # 单位宽度的adapter
+        # rf = int(768 / u_adapter_size)
 
-        adapter_num = int(width / u_adapter_size)
+        # adapter_num = int(width / u_adapter_size)
 
-        adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':rf, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
+        # adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':rf, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
 
-        adapter_list = []
-        for i in range(adapter_num):
-            model.add_adapter(str(i),config=adapter_config)
-            adapter_list.append(str(i))
+        # adapter_list = []
+        # for i in range(adapter_num):
+        #     model.add_adapter(str(i),config=adapter_config)
+        #     adapter_list.append(str(i))
 
-        model.set_active_adapters(adapter_list)
-        model.train_adapter(adapter_list)
+        # model.set_active_adapters(adapter_list)
+        # model.train_adapter(adapter_list)
         if formulation != "seq2seq":
             tokenizer = tokenizer_class.from_pretrained(
                 args.model_name, do_lower_case=args.do_lower_case, local_files_only=True)

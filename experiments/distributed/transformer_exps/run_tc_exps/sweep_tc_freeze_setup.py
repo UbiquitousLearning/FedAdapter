@@ -127,18 +127,25 @@ args.dataset = "agnews" # "agnews", "20news", "semeval_2010_task8"
 # freeze_layers = [[depth],[round],depth,[width]] 
 width = [32, 40, 48, 56, 64]
 depth = [0,1,2,3,4,5,6]
-bs = [8,16,32]
-client_num = [5,10]
-datasets = ["agnews", "20news", "semeval_2010_task8"]
+bs = [8, 16, 32]
+client_num = [5]
+datasets = ["semeval_2010_task8", "20news",  "agnews"]
 freeze_layers = [[6],[-1],6,[width]] 
 
 remove_cache_model(args)
 
 run_id = 0
-
-for dataset in datasets[::-1]:
-    for b in bs[::-1]:
-        for c in client_num[::-1]:
+for c in client_num[::-1]:
+    for dataset in datasets[::-1]:
+        for b in bs[::-1]:
+            if dataset == "agnews" and b == 32 and c == 10:
+                continue
+            if dataset == "agnews" and b == 8 and c == 10:
+                continue
+            if dataset == "20news" and b == 32 and c == 10:
+                continue
+            if dataset == "20news" and b == 8 and c == 10:
+                continue
             args.dataset = dataset
             args.bs = b
             args.client_num = c

@@ -21,8 +21,11 @@ cdq-5-1:
 cdq-10-setup:
     NVIDIA_A40: [0, 0, 0, 0, 5, 2, 4, 0]
 
+cdq-5-origin:
+    NVIDIA_A40: [0, 0, 0, 0, 0, 0, 6, 0]
+
 cdq-5-setup:
-    NVIDIA_A40: [0, 0, 0, 2, 1, 1, 2, 0]
+    NVIDIA_A40: [0, 0, 0, 0, 3, 1, 2, 0]
 
 
 cdq-64:

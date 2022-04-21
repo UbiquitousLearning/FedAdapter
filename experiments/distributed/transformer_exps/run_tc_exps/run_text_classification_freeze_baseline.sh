@@ -24,7 +24,7 @@ hostname > mpi_host_file
 mpirun -np $PROCESS_NUM -hostfile mpi_host_file \
 python -m fedavg_main_tc_baseline \
   --gpu_mapping_file "gpu_mapping.yaml" \
-  --gpu_mapping_key cdq-${WORKER_NUM}-1 \
+  --gpu_mapping_key cdq-${WORKER_NUM}-origin \
   --client_num_per_round $WORKER_NUM \
   --comm_round $ROUND \
   --ci $CI \
