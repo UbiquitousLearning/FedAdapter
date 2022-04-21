@@ -213,7 +213,7 @@ class TextClassificationTrainer:
             self.best_accuracy = result["acc"]
         logging.info("best_accuracy = %f" % self.best_accuracy)
         
-        if self.args.evaluate_during_training_steps == 200:
+        if self.args.evaluate_during_training_steps == 200 or self.args.evaluate_during_training_steps == 300:
             wandb.log(result)
 
             wandb.log({"Evaluation Accuracy (best)": self.best_accuracy})

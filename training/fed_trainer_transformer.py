@@ -28,7 +28,7 @@ class FedTransformerTrainer(ModelTrainer):
 
     def test_on_the_server(self, train_data_local_dict, test_data_local_dict, device, args=None, round_idx=0):
         logging.info(args.evaluate_during_training_steps)
-        if args.evaluate_during_training_steps == 200: # Baseline
+        if args.evaluate_during_training_steps == 200 or args.evaluate_during_training_steps == 300: # Baseline and Setup
             if round_idx % 20 == 0:
                 logging.info(args)
                 self.model_trainer.eval_model(device=device)
