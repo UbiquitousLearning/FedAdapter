@@ -202,15 +202,17 @@ class TextClassificationTrainer:
         result["eval_loss"] = eval_loss
         results.update(result)
 
-        os.makedirs(self.args.output_dir, exist_ok=True)
-        self.model.save_pretrained(self.args.output_dir)
-        # self.model.save_adapter(self.args.output_dir, '0')
-        output_eval_file = os.path.join(self.args.output_dir, "eval_results.txt")
-        with open(output_eval_file, "w") as writer:
-            for key in sorted(result.keys()):
-                writer.write("{} = {}\n".format(key, str(result[key])))
+        
         if result["acc"] > self.best_accuracy:
             self.best_accuracy = result["acc"]
+            os.makedirs(self.args.output_dir, exist_ok=True)
+            self.model.save_pretrained(self.args.output_dir)
+            # self.model.save_adapter(self.args.output_dir, '0')
+            output_eval_file = os.path.join(self.args.output_dir, "eval_results.txt")
+            with open(output_eval_file, "w") as writer:
+                for key in sorted(result.keys()):
+                    writer.write("{} = {}\n".format(key, str(result[key])))
+            
         logging.info("best_accuracy = %f" % self.best_accuracy)
         
         if self.args.evaluate_during_training_steps == 200 or self.args.evaluate_during_training_steps == 300:
@@ -295,7 +297,7 @@ class TextClassificationTrainer:
         adapter_list = []
         modules = list()
         # width = 8 * 4
-        width = int(self.freeze_layers[3])
+        width = min(int(self.freeze_layers[3]),64)
         logging.info("used width: %s" % str(width))
         for i in range(int(width /8)):
             # modules.append(model.bert.encoder.layer[int(layer_idx)].output.adapters[str(j)])

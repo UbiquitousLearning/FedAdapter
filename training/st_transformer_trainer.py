@@ -42,6 +42,7 @@ class SeqTaggingTrainer:
         # training results
         self.results = {}
         self.best_accuracy = 0.0
+        self.best_score = 0.0
 
         self.tokenizer = tokenizer
         self.pad_token_label_id = self.args.pad_token_label_id
@@ -74,14 +75,14 @@ class SeqTaggingTrainer:
 
 
         import random
-        batch_chosen = random.sample(range(0,417),100)
+        # batch_chosen = random.sample(range(0,417),100)
         # logging.info("Batch chosen is %s", str(batch_chosen))
 
         for epoch in range(0, self.args.epochs):
 
             for batch_idx, batch in enumerate(self.train_dl):
-                if batch_idx not in batch_chosen:
-                    continue
+                # if batch_idx not in batch_chosen:
+                #     continue
                 self.model.train()
                 batch = tuple(t for t in batch)
                 # dataset = TensorDataset(all_guid, all_input_ids, all_input_mask, all_segment_ids, all_label_ids)
@@ -152,7 +153,7 @@ class SeqTaggingTrainer:
 
         self.model.to(device)
         self.model.eval()
-        logging.info("len(test_dl) = %d, n_batches = %d" % (len(self.test_dl), n_batches))
+        # logging.info("len(test_dl) = %d, n_batches = %d" % (len(self.test_dl), n_batches))
         for i, batch in enumerate(self.test_dl):
             batch = tuple(t for t in batch)
             with torch.no_grad():
@@ -193,7 +194,7 @@ class SeqTaggingTrainer:
         token_logits = preds
         preds = np.argmax(preds, axis=2)
 
-        label_map = {i: label for i, label in enumerate(self.args.labels_list)}
+        label_map = {0:'O',1:'B-DATE',2:'I-DATE',3:'B-MONEY',4:'I-MONEY',5:'B-WORK_OF_ART',6:'B-CARDINAL',7:'B-ORG',8:'I-ORG',9:'B-PERSON',10:'I-PERSON',11:'B-GPE',12:'B-NORP',13:'B-PERCENT',14:'I-PERCENT',15:'I-CARDINAL',16:'I-WORK_OF_ART',17:'B-ORDINAL',18:'I-GPE',19:'B-TIME',20:'I-TIME',21:'B-LOC',22:'I-LOC',23:'B-PRODUCT',24:'B-FAC',25:'I-FAC',26:'B-EVENT',27:'I-EVENT',28:'B-QUANTITY',29:'I-QUANTITY',30:'B-LANGUAGE',31:'I-NORP',32:'B-LAW',33:'I-LAW',34:'I-PRODUCT',35:'I-LANGUAGE',36:'I-ORDINAL'}
 
         out_label_list = [[] for _ in range(out_label_ids.shape[0])]
         preds_list = [[] for _ in range(out_label_ids.shape[0])]
@@ -222,18 +223,19 @@ class SeqTaggingTrainer:
         }
         # wandb.log(result)
         results.update(result)
-        logging.info(result)
+        if result["f1_score"] > self.best_score:
+            self.best_score = result["f1_score"]
 
-        os.makedirs(eval_output_dir, exist_ok=True)
-        self.model.save_pretrained(self.args.output_dir)
-        # self.model.save_adapter(self.args.output_dir, 'a0')
-        output_eval_file = os.path.join(eval_output_dir, "eval_results.txt")
-        with open(output_eval_file, "w") as writer:
-            if self.args.classification_report:
-                cls_report = classification_report(out_label_list, preds_list)
-                writer.write("{}\n".format(cls_report))
-            for key in sorted(result.keys()):
-                writer.write("{} = {}\n".format(key, str(result[key])))
+            os.makedirs(eval_output_dir, exist_ok=True)
+            self.model.save_pretrained(self.args.output_dir)
+            # self.model.save_adapter(self.args.output_dir, 'a0')
+            output_eval_file = os.path.join(eval_output_dir, "eval_results.txt")
+            with open(output_eval_file, "w") as writer:
+                if self.args.classification_report:
+                    cls_report = classification_report(out_label_list, preds_list)
+                    writer.write("{}\n".format(cls_report))
+                for key in sorted(result.keys()):
+                    writer.write("{} = {}\n".format(key, str(result[key])))
 
         self.results.update(result)
         logging.info(self.results)
@@ -310,96 +312,6 @@ class SeqTaggingTrainer:
             for param in module.parameters():
                 param.requires_grad = False
         logging.info(get_parameter_number(model))
-        
-        # # per round adaptive
-        # modules = list()
-        # L1 = [0,1,2,3,4,5,6,7,8]
-        # L2 = []
-        # L3 = [9]
-        
-        # # activate all grads
-        # self.freeze_layers = ['e', '0', '1', '2', '3', '4', '5'] 
-        # logging.info("activate all grads")
-        # for layer_idx in self.freeze_layers:
-        #     if layer_idx == "e":
-        #         modules.append(model.distilbert.embeddings)
-        #     else:
-        #         modules.append(model.distilbert.transformer.layer[int(layer_idx)])
-        # for module in modules:
-        #     for param in module.parameters():
-        #         param.requires_grad = True
-        # model.train_adapter("rotten_tomatoes") # enable adapters
-
-        # modules = list()
-
-        # if rounds < 20: 
-        #     self.freeze_layers = ['e', '0', '1', '2','3','4']   # ['e', '0', '1', '2', '3', '4', '5'] 
-        #     logging.info("freeze layers: %s" % str(self.freeze_layers))
-        #     for layer_idx in self.freeze_layers:
-        #         if layer_idx == "e":
-        #             modules.append(model.distilbert.embeddings)
-        #         else:
-        #             modules.append(model.distilbert.transformer.layer[int(layer_idx)])
-        #     for module in modules:
-        #         for param in module.parameters():
-        #             param.requires_grad = False
-        # elif rounds < 60: 
-        #     self.freeze_layers = ['e', '0', '1','2','3'] 
-        #     logging.info("freeze layers: %s" % str(self.freeze_layers))
-        #     for layer_idx in self.freeze_layers:
-        #         if layer_idx == "e":
-        #             modules.append(model.distilbert.embeddings)
-        #         else:
-        #             modules.append(model.distilbert.transformer.layer[int(layer_idx)])
-        #     for module in modules:
-        #         for param in module.parameters():
-        #             param.requires_grad = False
-        # elif rounds < 100: 
-        #     self.freeze_layers = ['e', '0', '1', '2']
-        #     logging.info("freeze layers: %s" % str(self.freeze_layers))
-        #     for layer_idx in self.freeze_layers:
-        #         if layer_idx == "e":
-        #             modules.append(model.distilbert.embeddings)
-        #         else:
-        #             modules.append(model.distilbert.transformer.layer[int(layer_idx)])
-        #     for module in modules:
-        #         for param in module.parameters():
-        #             param.requires_grad = False
-        # elif rounds < 140: 
-        #     self.freeze_layers = ['e', '0', '1']
-        #     logging.info("freeze layers: %s" % str(self.freeze_layers))
-        #     for layer_idx in self.freeze_layers:
-        #         if layer_idx == "e":
-        #             modules.append(model.distilbert.embeddings)
-        #         else:
-        #             modules.append(model.distilbert.transformer.layer[int(layer_idx)])
-        #     for module in modules:
-        #         for param in module.parameters():
-        #             param.requires_grad = False
-        # elif rounds < 180: 
-        #     self.freeze_layers = ['e', '0']
-        #     logging.info("freeze layers: %s" % str(self.freeze_layers))
-        #     for layer_idx in self.freeze_layers:
-        #         if layer_idx == "e":
-        #             modules.append(model.distilbert.embeddings)
-        #         else:
-        #             modules.append(model.distilbert.transformer.layer[int(layer_idx)])
-        #     for module in modules:
-        #         for param in module.parameters():
-        #             param.requires_grad = False
-        # else: 
-        #     self.freeze_layers = ['e']
-        #     logging.info("freeze layers: %s" % str(self.freeze_layers))
-        #     for layer_idx in self.freeze_layers:
-        #         if layer_idx == "e":
-        #             modules.append(model.distilbert.embeddings)
-        #         else:
-        #             modules.append(model.distilbert.transformer.layer[int(layer_idx)])
-        #     for module in modules:
-        #         for param in module.parameters():
-        #             param.requires_grad = False
-        # logging.info(get_parameter_number(model))
-
 
     def _convert_tokens_to_word_logits(self, input_ids, label_ids, attention_mask, logits):
 
