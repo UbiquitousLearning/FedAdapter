@@ -79,3 +79,6 @@ experiments/distributed/transformer_exps/*/~
 experiments/centralized/transformer_exps/~
 experiments/distributed/transformer_exps/*/Obsolete
 experiments/distributed/transformer_exps/*/obsolete
+
+# results
+experiments/distributed/transformer_exps/*/results
