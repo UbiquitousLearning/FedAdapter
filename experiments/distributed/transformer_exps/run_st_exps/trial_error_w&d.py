@@ -14,8 +14,23 @@ def add_args(parser):
     parser : argparse.ArgumentParser
     return a parser added with args required by fit
     """
+    parser.add_argument('--dataset', type=str, default="onto",
+                        help='Available datasets: "onto" ')
+    parser.add_argument('--round', type=int, default=-1,
+                        help='Start up round')
+    parser.add_argument('--depth', type=int, default=1,
+                        help='Start up depth')
+    parser.add_argument('--width', type=int, default=8,
+                        help='Start up width')
+    parser.add_argument('--time_threshold', type=int, default=90,
+                        help='How many seconds to compare different branches. 1 / switch frequency')
+    parser.add_argument('--max_round', type=int, default=3000,
+                        help='How many rounds')
+    parser.add_argument('--expand', type=int, default=4,
+                        help='actual time_threshold is time_threshold * (expand * depth + 1).')
+    parser.add_argument('--step', type=int, default=1,
+                        help='the step length of depth increase')
     return parser.parse_args()
-
 
 def wait_for_the_training_process(type, args):
     args.type = type
@@ -33,20 +48,18 @@ def wait_for_the_training_process(type, args):
             sleep(3)
             # print("Daemon is alive. Waiting for the training result.")
 
-
 def get_acc(args, type):
-    args.atype = type
-    eval_file_path = "./tmp/{args.dataset}_fedavg_output_{args.atype}-{args.depth}-{args.time_threshold}/eval_results.txt".format(args=args)
+    eval_file_path = "./tmp/{args.dataset}_fedavg_output_".format(args=args) + type + "/eval_results.txt"
     file_fd = os.open(eval_file_path, os.O_RDONLY | os.O_NONBLOCK)
     with os.fdopen(file_fd) as file:
         while True:
             message = file.read()
             if message:
                 print("Newest Performance: \n%s\n" % message)
-                print("Newest Accuracy is: %s\n" % message.split()[2])
-                print("Type", args.atype, "Loss is", message.split()[5])
+                idx_acc = message.split().index("f1_score")
+                print("Newest f1_score is: %s\n" % message.split()[idx_acc + 2])
                 # os.remove(eval_file_path)
-                acc = message.split()[2]
+                acc = message.split()[idx_acc + 2]
                 return acc
             sleep(3)
 
@@ -63,13 +76,12 @@ def run(type, args):
     if type == "wide":
         args.hp = hp_wide
     
-    # os.system("perl -p -i -e 's/pipe_path = .*/pipe_path = \".\/tmp\/{args.dataset}-fedml-{args.type}-{args.depth}-{args.time_threshold}\"/g' /home/cdq/FedNLP/FedML/fedml_api/distributed/fedavg/utils.py".format(args=args)) # pipe tmp name
-    print('nohup sh run_text_classification_freeze.sh '
+    print('nohup sh run_seq_tagging_trial.sh '
                 '{args.hp} '
-                '> ./results/BERT/{args.dataset}-Trail-{args.depth}-{args.time_threshold}/fednlp_tc_{args.type}_{args.run_id}.log 2>&1 &'.format(args=args))
-    os.system('nohup sh run_text_classification_freeze.sh '
+                '> ./results/BERT/{args.dataset}-Trail-{args.depth}-{args.time_threshold}/fednlp_st_{args.type}_{args.run_id}.log 2>&1 &'.format(args=args))
+    os.system('nohup sh run_seq_tagging_trial.sh '
                 '{args.hp} '
-                '> ./results/BERT/{args.dataset}-Trail-{args.depth}-{args.time_threshold}/fednlp_tc_{args.type}_{args.run_id}.log 2>&1 &'.format(args=args))
+                '> ./results/BERT/{args.dataset}-Trail-{args.depth}-{args.time_threshold}/fednlp_st_{args.type}_{args.run_id}.log 2>&1 &'.format(args=args))
     
     sleep(3) # 防止tmp文件相互干扰
 
@@ -79,18 +91,8 @@ def remove_cache_model(args):
     os.system("rm -rf .\/tmp\/{args.dataset}_fedavg_output_deep-{args.depth}-{args.time_threshold}".format(args=args))
 
 def set_hp(delta_round, freeze_layers, args):
-        if args.dataset == "agnews":
-            partition_method = "niid_label_clients=1000_alpha=10.0"
-        if args.dataset == "semeval_2010_task8":
-            partition_method = "niid_label_clients=100_alpha=100"
-        if args.dataset == "20news":
-            partition_method = "uniform"
-
-        hp = 'FedAvg ' + partition_method + ' 0.1 0.1 ' + str(delta_round) + ' 5 ' + remove_space(str([freeze_layers[2]]).replace(',','.')+','+str([-1]).replace(',','.')+','+str(freeze_layers[2]))+','+str(freeze_layers[3][-1]).replace(',','.')+" "+str(args.depth)+" "+str(args.time_threshold) +" "+str(args.dataset) +" "+str(args.type)# linux 读取输入的时候以，为分隔符，需要替换掉
-
+        hp = 'FedAvg "niid_label_clients=30_alpha=1.0" 0.1 1 0.5 ' + str(delta_round) + ' 5 ' + remove_space(str([freeze_layers[2]]).replace(',','.')+','+str([-1]).replace(',','.')+','+str(freeze_layers[2]))+','+str(freeze_layers[3][-1]).replace(',','.')+" "+str(args.depth)+" "+str(args.time_threshold) +" "+str(args.type)# linux 读取输入的时候以，为分隔符，需要替换掉
         return hp
-
-
 
 def inherit_model(winner_type, args): # from the winner
     args.type = winner_type
@@ -106,7 +108,7 @@ def kill_process():
     # kill -9 $(ps -ef|grep "fedavg_main_tc_trial"| awk '{print $2}')
     os.system("kill -9 $(ps -ef|grep \"fedavg_main_tc_trial\"| awk '{print $2}')")
 
-def skil_trial(depth): # use different trial freq to distinguish
+def skip_trial(depth): # use different trial freq to distinguish
     if depth == 1:
         return depth + 1
     else:
@@ -115,83 +117,67 @@ def skil_trial(depth): # use different trial freq to distinguish
 def warm_up():
     pass
 
-
-# logging.basicConfig(level=logging.INFO,
-#                     format='%(process)s %(asctime)s.%(msecs)03d - {%(module)s.py (%(lineno)d)} - %(funcName)s(): %(message)s',
-#                     datefmt='%Y-%m-%d,%H:%M:%S')
-
-
 parser = argparse.ArgumentParser()
 args = add_args(parser)
-
-args.dataset = "semeval_2010_task8" # "agnews", "20news", "semeval_2010_task8"
-args.round = -1 
-args.depth = 1
-args.width = 8
-args.time_threshold = 90
-args.max_round = 5000
-args.expand = 4 # time_thereshold的膨胀系数，actual time_threshold is time_threshold * (expand * depth + 1). 越深的层应该更稳定，可以减少trial频率
-
-filename = "results/{args.dataset}-depth-{args.depth}-freq-{args.time_threshold}.log".format(args=args)
-# os.system("rm results\/{args.dataset}-depth-{args.depth}-freq-{args.time_threshold}.log".format(args=args))
-f=open(filename,"w+")
-
-print("Running args is %s" % str(args),file=f,flush=True)
 
 
 round = args.round
 depth = args.depth 
 width = args.width
-
-latency_tx2_cached = np.array([0.02, 0.09, 0.18, 0.27, 0.36, 0.45, 0.54, 0.63, 0.72, 0.81, 0.90, 0.99, 1.08])
-bw = 1 # both for upload and download bandwidth
-<<<<<<< Updated upstream
-batch_num = 20 # per round; 20 for semeval; 29 for 20news; 30 for agnews
-=======
-batch_num = 20 # per round
->>>>>>> Stashed changes
-# overhead per round
-
-comp = latency_tx2_cached * batch_num
-
-freeze_layers = [[depth],[round],depth,[width]] 
-freeze_layers = [[1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3], [-1, 206, 413, 611, 809, 911, 1087, 1263, 1439, 1557, 1729, 1901], 3, [8, 16, 16, 24, 24, 24, 32, 32, 32, 32, 32, 32]]
-
-
 time_threshold = args.time_threshold # trail_freq. Unit: S
-
 expand = args.expand
+step = args.step
+dataset = args.dataset
+
+if dataset == "onto":
+    batch_num = 20 # per round; 20 for semeval; 29 for 20news; 30 for agnews; 20 for onto
+
+latency_tx2_cached = np.array([0.02, 0.09, 0.18, 0.27, 0.36, 0.45, 0.54, 0.63, 0.72, 0.81, 0.90, 0.99, 1.08]) # tx2
+bw = 1 # both for upload and download bandwidth
+run_id = 0
+metric = [0]
+
+# overhead per round
+comp = latency_tx2_cached * batch_num
+freeze_layers = [[depth],[round],depth,[width]] 
+
+# Trial&Error Log
+# os.system("rm results\/{args.dataset}-depth-{args.depth}-freq-{args.time_threshold}.log".format(args=args))
+filename = "results/{args.dataset}-depth-{args.depth}-freq-{args.time_threshold}.log".format(args=args)
+f=open(filename,"w+")
+print("Running args is %s" % str(args),file=f,flush=True)
 
 # garbage clean
 # kill_process()
 remove_cache_model(args)
 
-run_id = 11
-metric = [0, '0.18108207581891791', '0.18991534781008465', '0.18439455281560543', '0.18917924181082077', '0.19801251380198748', '0.18844313581155686', '0.430253956569746', '0.6091277143908723', '0.6448288553551711', '0.6624953993375046', '0.6750092013249908']
-while freeze_layers[1][-1] < args.max_round: # max_round = 1000
+while freeze_layers[1][-1] < args.max_round:
     os.system("mkdir ./tmp/; \
     touch ./tmp/{args.dataset}-fedml-shallow-{args.depth}-{args.time_threshold}; \
     touch ./tmp/{args.dataset}-fedml-wide-{args.depth}-{args.time_threshold}; \
     touch ./tmp/{args.dataset}-fedml-deep-{args.depth}-{args.time_threshold}; \
     mkdir -p ./results/BERT/{args.dataset}-Trail-{args.depth}-{args.time_threshold}".format(args=args))
+
     print("Begin Trail", run_id, ":\n",file=f,flush=True)
-    width = freeze_layers[3][-1]
-    model_size_32 = np.array([0.02 + i*0.05*width/32 for i in range(0,13)]) * 4
-    comm = model_size_32 * 2 / bw
     print(freeze_layers,file=f,flush=True)
     print(metric,file=f,flush=True)
-    # os.system("perl -p -i -e 's/Trail[0-9]*/Trail{args.depth}{args.time_threshold}/g' /home/cdq/FedNLP/experiments/distributed/transformer_exps/run_tc_exps/fedavg_main_tc.py".format(args=args)) # wandb name
+
+    width = freeze_layers[3][-1]
+    model_size = np.array([0.02 + i*0.05*width/32 for i in range(0,13)]) * 4
+    comm = model_size * 2 / bw
+
     depth_shallow = freeze_layers[0][-1]
-    depth_deep = depth_shallow + 1
-    depth_deep = skil_trial(depth_deep)
+    depth_deep = depth_shallow + step
+    depth_deep = skip_trial(depth_deep)
 
     time_threshold = args.time_threshold * (expand * freeze_layers[0][-1] + 1) # depth = freeze_layers[0][-1]
 
     delta_round_shallow = int(time_threshold // (comm[depth_shallow] + comp[depth_shallow]))
     delta_round_deep = int(time_threshold // (comm[depth_deep] + comp[depth_deep]))
 
-    model_size_32_wide = np.array([0.02 + i*0.05*(width+8)/32 for i in range(0,13)]) * 4
-    comm_wide = model_size_32_wide * 2 / bw
+    width_wide = width+8
+    model_size_wide = np.array([0.02 + i*0.05*width_wide/32 for i in range(0,13)]) * 4
+    comm_wide = model_size_wide * 2 / bw
     # print(comm,file=f,flush=True)
     # print(comm_wide,file=f,flush=True)
     delta_round_wide = int(time_threshold // (comm_wide[depth_shallow] + comp[depth_shallow]))
@@ -219,8 +205,6 @@ while freeze_layers[1][-1] < args.max_round: # max_round = 1000
     freeze_layers[3][-1] = freeze_layers[3][-1] + 8
     hp_wide = set_hp(delta_round_wide, freeze_layers, args)
     freeze_layers[3][-1] = freeze_layers[3][-1] - 8
-    
-    
     
     args.run_id = run_id
 

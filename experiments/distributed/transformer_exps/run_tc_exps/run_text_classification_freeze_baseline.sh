@@ -24,7 +24,7 @@ hostname > mpi_host_file
 mpirun -np $PROCESS_NUM -hostfile mpi_host_file \
 python -m fedavg_main_tc_baseline \
   --gpu_mapping_file "gpu_mapping.yaml" \
-  --gpu_mapping_key cdq-${WORKER_NUM}-origin \
+  --gpu_mapping_key cdq-${WORKER_NUM}-baseline \
   --client_num_per_round $WORKER_NUM \
   --comm_round $ROUND \
   --ci $CI \
@@ -37,7 +37,7 @@ python -m fedavg_main_tc_baseline \
   --model_name bert-base-uncased \
   --do_lower_case True \
   --train_batch_size 4 \
-  --eval_batch_size 4 \
+  --eval_batch_size 8 \
   --max_seq_length 256 \
   --lr $C_LR \
   --server_lr $S_LR \

@@ -53,67 +53,6 @@ logging.basicConfig(level=logging.INFO,
 parser = argparse.ArgumentParser()
 args = add_args(parser)
 
-# os.system("kill $(ps aux | grep \"fedavg_main_tc.py\" | grep -v grep | awk '{print $2}')")
-
-# sh run_text_classification.sh FedAvg "niid_label_clients=100_alpha=5.0" 5e-5 0.1 30
-# sh run_text_classification.sh FedAvg "niid_label_clients=100_alpha=10.0" 5e-5 0.1 30
-# sh run_text_classification.sh FedAvg "niid_label_clients=100_alpha=1.0" 5e-5 0.1 30
-# sh run_text_classification.sh FedAvg "uniform" 5e-5 0.1 30
-# sh run_text_classification.sh FedAvg "niid_quantity_clients=100_beta=5.0" 5e-5 0.1 30
-
-# sh run_text_classification.sh FedProx "niid_label_clients=100_alpha=5.0" 5e-5 0.1 30
-# sh run_text_classification.sh FedProx "niid_label_clients=100_alpha=10.0" 5e-5 0.1 30
-# sh run_text_classification.sh FedProx "niid_label_clients=100_alpha=1.0" 5e-5 0.1 30
-# sh run_text_classification.sh FedProx "uniform" 5e-5 0.1 30
-# sh run_text_classification.sh FedProx "niid_quantity_clients=100_beta=5.0" 5e-5 0.1 30
-
-# sh run_text_classification.sh FedOPT "niid_label_clients=100_alpha=5.0" 5e-5 0.1 30
-# sh run_text_classification.sh FedOPT "niid_label_clients=100_alpha=10.0" 5e-5 0.1 30
-# sh run_text_classification.sh FedOPT "niid_label_clients=100_alpha=1.0" 5e-5 0.1 30
-# sh run_text_classification.sh FedOPT "uniform" 5e-5 0.1 30
-# sh run_text_classification.sh FedOPT "niid_quantity_clients=100_beta=5.0" 5e-5 0.1 30
-
-hps = [
-    # 'FedAvg "niid_label_clients=100_alpha=5.0" 5e-5 0.1 25', # finished by Zihang
-    # 'FedAvg "niid_label_clients=100_alpha=10.0" 5e-5 0.1 25',
-    # 'FedAvg "niid_label_clients=100_alpha=1.0" 5e-5 0.1 25',
-    # 'FedProx "niid_label_clients=100_alpha=5.0" 5e-5 0.1 25',
-    # 'FedProx "niid_label_clients=100_alpha=10.0" 5e-5 0.1 25',
-    # 'FedProx "niid_label_clients=100_alpha=1.0" 5e-5 0.1 25',
-    # 'FedOPT "niid_label_clients=100_alpha=5.0" 5e-5 0.1 25',
-    # 'FedOPT "niid_label_clients=100_alpha=10.0" 5e-5 0.1 25',
-    # 'FedOPT "niid_label_clients=100_alpha=1.0" 5e-5 0.1 25',
-    # 'FedAvg "uniform" 5e-5 0.1 25',
-    # 'FedProx "uniform" 5e-5 0.1 25',
-    # 'FedOPT "uniform" 5e-5 0.1 25',
-    # 'FedAvg "niid_quantity_clients=100_beta=5.0" 5e-5 0.1 25',
-    # 'FedOPT "niid_quantity_clients=100_beta=5.0" 5e-5 0.1 25', # finished by Chaoyang
-    # 'FedAvg "uniform" 0.1 1 400 10 e,0,1,2,3,4,5',
-    # 'FedAvg "uniform" 0.1 1 400 10 e,0,1,2,3,4,5,6,7,8,9,10,11',
-    # 'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5,6,7,8,9,10',
-    # 'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5,6,7,8,9',
-    'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5,6,7,8',
-    # 'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5,6,7',
-    'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5,6',
-    # 'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4,5',
-    'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3,4',
-    # 'FedAvg "uniform" 0.1 1 400 5 e,0,1,2,3',
-    'FedAvg "uniform" 0.1 1 400 5 e,0,1,2',
-    # 'FedAvg "uniform" 0.1 1 400 5 e,0,1',
-    'FedAvg "uniform" 0.1 1 400 5 e,0',
-    'FedAvg "uniform" 0.1 1 400 5 e'
-]
-
-hps_parallelism = [
-    'FedAvg "uniform" 0.1 1 200 1',
-    'FedAvg "uniform" 0.1 1 200 2',
-    'FedAvg "uniform" 0.1 1 200 4',
-    'FedAvg "uniform" 0.1 1 200 8',
-    'FedAvg "uniform" 0.1 1 200 16',
-    'FedAvg "uniform" 0.1 1 200 32',
-    # 'FedAvg "uniform" 0.1 1 3000 64',
-]
-
 args.round = -1 
 args.depth = 11
 args.width = 32
@@ -135,7 +74,6 @@ freeze_layers = [[6],[-1],6,[width]]
 remove_cache_model(args)
 
 run_id = 0
-<<<<<<< Updated upstream
 for c in client_num[::-1]:
     for dataset in datasets[::-1]:
         for b in bs[::-1]:
@@ -161,28 +99,3 @@ for c in client_num[::-1]:
 
             sleep(5)
             run_id += 1
-=======
-for c in client_num[::]:
-    for b in bs[::]:
-        args.bs = b
-        args.client_num = c
-        freeze_layers = [[args.depth],[-1],args.depth,[args.width]] 
-        args.hp = set_hp(1000, freeze_layers,args)
-        args.run_id = run_id
-        
-        logging.info("hp = %s" % args.hp)
-
-        os.system("mkdir ./tmp/; touch ./tmp/fedml-setup-{args.dataset}; mkdir ./results/BERT/{args.dataset}-setup".format(args=args))
-        logging.info('nohup sh run_text_classification_freeze_setup.sh '
-                '{args.hp} '
-                '> ./results/BERT/{args.dataset}-setup/fednlp_tc_dataset_{args.dataset}_batchsize_{args.bs}_client_num_{args.client_num}.log 2>&1 &'.format(args=args))
-        os.system('nohup sh run_text_classification_freeze_setup.sh '
-                '{args.hp} '
-                '> ./results/BERT/{args.dataset}-setup/fednlp_tc_dataset_{args.dataset}_batchsize_{args.bs}_client_num_{args.client_num}.log 2>&1 &'.format(args=args))
-        
-
-        wait_for_the_training_process(args)
-
-        sleep(5)
-        run_id += 1
->>>>>>> Stashed changes

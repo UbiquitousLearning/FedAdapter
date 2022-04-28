@@ -10,7 +10,7 @@ cdq-10:
 
 cdq-5:
     # NVIDIA_A40: [2, 2, 0, 2, 0, 0, 0, 0] # test
-    NVIDIA_A40: [0, 0, 0, 6, 0, 0, 0, 0] # 2
+    NVIDIA_A40: [0, 0, 0, 3, 2, 1, 0, 0] # 2
     # NVIDIA_A40: [1, 1, 1, 0, 1, 1, 1, 0] # 3
 
 cdq-5-1:
@@ -30,7 +30,7 @@ cdq-2-setup:
 cdq-1-setup:
     NVIDIA_A40: [0, 0, 0, 1, 0, 0, 1, 0]
 
-cdq-5-origin:
+cdq-5-baseline:
     NVIDIA_A40: [0, 0, 0, 0, 0, 0, 6, 0]
 
 

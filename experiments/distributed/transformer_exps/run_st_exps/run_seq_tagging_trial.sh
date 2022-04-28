@@ -9,7 +9,6 @@ WORKER_NUM=$7
 LAYERS=$8
 DEPTH=$9
 TIME=$10
-BS=$11
 
 LOG_FILE="fedavg_transformer_st.log"
 
@@ -37,7 +36,7 @@ python -m fedavg_main_st_setup \
   --model_type bert \
   --model_name bert-base-uncased \
   --do_lower_case True \
-  --train_batch_size $BS \
+  --train_batch_size 4 \
   --eval_batch_size 8 \
   --max_seq_length 256 \
   --lr $C_LR \
