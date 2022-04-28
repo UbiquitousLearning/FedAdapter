@@ -118,23 +118,24 @@ args.round = -1
 args.depth = 11
 args.width = 32
 args.time_threshold = 60
-args.max_round = 3000
+args.max_round = 2000
 args.bs = 8
 args.client_num = 5
 
-args.dataset = "agnews" # "agnews", "20news", "semeval_2010_task8"
+args.dataset = "semeval_2010_task8" # "agnews", "20news", "semeval_2010_task8"
 
 # freeze_layers = [[depth],[round],depth,[width]] 
 width = [32, 40, 48, 56, 64]
 depth = [0,1,2,3,4,5,6]
-bs = [8, 16, 32]
-client_num = [5]
+bs = [4, 8, 16, 32]
+client_num = [5, 10]
 datasets = ["semeval_2010_task8", "20news",  "agnews"]
 freeze_layers = [[6],[-1],6,[width]] 
 
 remove_cache_model(args)
 
 run_id = 0
+<<<<<<< Updated upstream
 for c in client_num[::-1]:
     for dataset in datasets[::-1]:
         for b in bs[::-1]:
@@ -160,3 +161,28 @@ for c in client_num[::-1]:
 
             sleep(5)
             run_id += 1
+=======
+for c in client_num[::]:
+    for b in bs[::]:
+        args.bs = b
+        args.client_num = c
+        freeze_layers = [[args.depth],[-1],args.depth,[args.width]] 
+        args.hp = set_hp(1000, freeze_layers,args)
+        args.run_id = run_id
+        
+        logging.info("hp = %s" % args.hp)
+
+        os.system("mkdir ./tmp/; touch ./tmp/fedml-setup-{args.dataset}; mkdir ./results/BERT/{args.dataset}-setup".format(args=args))
+        logging.info('nohup sh run_text_classification_freeze_setup.sh '
+                '{args.hp} '
+                '> ./results/BERT/{args.dataset}-setup/fednlp_tc_dataset_{args.dataset}_batchsize_{args.bs}_client_num_{args.client_num}.log 2>&1 &'.format(args=args))
+        os.system('nohup sh run_text_classification_freeze_setup.sh '
+                '{args.hp} '
+                '> ./results/BERT/{args.dataset}-setup/fednlp_tc_dataset_{args.dataset}_batchsize_{args.bs}_client_num_{args.client_num}.log 2>&1 &'.format(args=args))
+        
+
+        wait_for_the_training_process(args)
+
+        sleep(5)
+        run_id += 1
+>>>>>>> Stashed changes

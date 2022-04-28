@@ -39,6 +39,7 @@ class FedTransformerTrainer(ModelTrainer):
             logging.info("Current round is %s; Only evaluate on round %s", str(round_idx), str(args.comm_round-2))
             if round_idx == args.comm_round-2 or round_idx % 10 == 0:
                 self.model_trainer.eval_model(device=device)
+
             return True
 
 def str2list(a):

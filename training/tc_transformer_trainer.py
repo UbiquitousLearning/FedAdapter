@@ -11,8 +11,6 @@ import os
 from re import L
 from pyrsistent import freeze
 # from thop import profile
-from torchstat import stat
-from ptflops import get_model_complexity_info
 from time import sleep
 
 import random    
@@ -27,9 +25,7 @@ from transformers import (
     AdamW,
     get_linear_schedule_with_warmup,
 )
-from torch.profiler import profile, record_function, ProfilerActivity
 
-import torchprof
 
 class TextClassificationTrainer:
     def __init__(self, args, device, model, train_dl=None, test_dl=None):
@@ -201,7 +197,7 @@ class TextClassificationTrainer:
         result, wrong = self.compute_metrics(preds, out_label_ids, self.test_dl.examples)
         result["eval_loss"] = eval_loss
         results.update(result)
-
+        
         os.makedirs(self.args.output_dir, exist_ok=True)
         self.model.save_pretrained(self.args.output_dir)
         if result["acc"] > self.best_accuracy:
@@ -303,6 +299,9 @@ class TextClassificationTrainer:
             adapter_list.append(str(i))
         
         model.train_adapter(adapter_list)
+        # for param in model.classifier.parameters():
+        #         param.requires_grad = True
+                
         logging.info(get_parameter_number(model))
         
         # Find Optimal depth (and width) dynamically through Trail&Error.

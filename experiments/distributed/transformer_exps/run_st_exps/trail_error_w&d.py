@@ -60,10 +60,10 @@ def run(type, args):
         args.hp = hp_wide
     
     # os.system("perl -p -i -e 's/pipe_path = .*/pipe_path = \".\/tmp\/{args.dataset}-fedml-{args.type}-{args.depth}-{args.time_threshold}\"/g' /home/cdq/FedNLP/FedML/fedml_api/distributed/fedavg/utils.py".format(args=args)) # pipe tmp name
-    print('nohup sh run_seq_tagging.sh '
+    print('nohup sh run_seq_tagging_trial.sh '
                 '{args.hp} '
                 '> ./results/BERT/{args.dataset}-Trail-{args.depth}-{args.time_threshold}/fednlp_tc_{args.type}_{args.run_id}.log 2>&1 &'.format(args=args))
-    os.system('nohup sh run_seq_tagging.sh '
+    os.system('nohup sh run_seq_tagging_trial.sh '
                 '{args.hp} '
                 '> ./results/BERT/{args.dataset}-Trail-{args.depth}-{args.time_threshold}/fednlp_tc_{args.type}_{args.run_id}.log 2>&1 &'.format(args=args))
     
@@ -135,16 +135,20 @@ comp = latency_tx2_cached * batch_num
 # freeze_layers[1] is round list
 # freeze_layers[2] is depth_shallow or depth_deep
 freeze_layers = [[depth],[round],depth,[width]] 
-
+# freeze_layers = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [-1, 105, 211, 317, 423, 529, 635, 741, 847, 953, 1059, 1165, 1271, 1377, 1483, 1589, 1695, 1801, 1907, 2013, 2119, 2225, 2331, 2437, 2543, 2649, 2755, 2861, 2967], 0, [8, 16, 24, 32, 32, 40, 48, 48, 48, 48, 48, 56, 56, 56, 56, 56, 56, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64]]
 
 time_threshold = args.time_threshold # trail_freq. Unit: S
 
 expand = args.expand
 
-remove_cache_model(args)
+# remove_cache_model(args)
 
 run_id = 0
+# metric = [0, '0.4675081813931744', '0.5148785425101214', '0.5361279646993933', '0.548293464117706', '0.5567368839427663', '0.5619572229666021', '0.5679416579848191', '0.5715295305401311', '0.5744852644327816', '0.577152083964073', '0.5795848620395034', '0.5832243789600723', '0.5836266720305743', '0.5840164965045517', '0.5853879440474993', '0.5866666666666666', '0.5870012547051442', '0.5878988561107767', '0.5880995384306642', '0.5887', '0.5896226415094339', '0.5900356228990016', '0.5903777655144735', '0.5910295514775739', '0.5915929424701354', '0.5927338418305901', '0.593615098885654', '0.5939053165319543']
 metric = [0]
+
+step = 3 #每次depth的增加数量 
+
 while freeze_layers[1][-1] < args.max_round: # max_round = 1000
     print("Begin Trail", run_id, ":\n",file=f,flush=True)
     width = freeze_layers[3][-1]
@@ -154,8 +158,8 @@ while freeze_layers[1][-1] < args.max_round: # max_round = 1000
     print(metric,file=f,flush=True)
     # os.system("perl -p -i -e 's/Trail[0-9]*/Trail{args.depth}{args.time_threshold}/g' /home/cdq/FedNLP/experiments/distributed/transformer_exps/run_tc_exps/fedavg_main_tc.py".format(args=args)) # wandb name
     depth_shallow = freeze_layers[0][-1]
-    depth_deep = depth_shallow + 1
-    depth_deep = skil_trial(depth_deep)
+    depth_deep = depth_shallow + step
+    # depth_deep = skil_trial(depth_deep)
 
     time_threshold = args.time_threshold * (expand * freeze_layers[0][-1] + 1) # depth = freeze_layers[0][-1]
 

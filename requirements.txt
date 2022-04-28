@@ -99,7 +99,7 @@ scipy==1.4.1
 Send2Trash==1.5.0
 sentencepiece==0.1.91
 sentry-sdk==0.19.5
-seqeval==1.2.2
+
 setproctitle==1.2.1
 shortuuid==1.0.1
 six==1.15.0

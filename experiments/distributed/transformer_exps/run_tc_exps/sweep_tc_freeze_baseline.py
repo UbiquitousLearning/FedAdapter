@@ -135,7 +135,7 @@ for w in width:
         args.depth = d
         args.width = w
         freeze_layers = [[d],[-1],d,[w]] 
-        args.hp = set_hp(400, freeze_layers,args)
+        args.hp = set_hp(3000, freeze_layers,args)
         args.run_id = run_id
         
         logging.info("hp = %s" % args.hp)

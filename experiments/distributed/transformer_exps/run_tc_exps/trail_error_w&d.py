@@ -103,7 +103,7 @@ def inherit_model(winner_type, args): # from the winner
             os.system("cp -r .\/tmp\/{args.dataset}_fedavg_output_{args.type}-{args.depth}-{args.time_threshold} .\/tmp\/{args.dataset}_fedavg_output_{args.t}-{args.depth}-{args.time_threshold}".format(args=args))
 
 def kill_process():
-    # kill -9 $(ps -ef|grep "fedavg"| awk '{print $2}')
+    # kill -9 $(ps -ef|grep "fedavg_main_tc_trial"| awk '{print $2}')
     os.system("kill -9 $(ps -ef|grep \"fedavg_main_tc_trial\"| awk '{print $2}')")
 
 def skil_trial(depth): # use different trial freq to distinguish
@@ -145,7 +145,11 @@ width = args.width
 
 latency_tx2_cached = np.array([0.02, 0.09, 0.18, 0.27, 0.36, 0.45, 0.54, 0.63, 0.72, 0.81, 0.90, 0.99, 1.08])
 bw = 1 # both for upload and download bandwidth
+<<<<<<< Updated upstream
 batch_num = 20 # per round; 20 for semeval; 29 for 20news; 30 for agnews
+=======
+batch_num = 20 # per round
+>>>>>>> Stashed changes
 # overhead per round
 
 comp = latency_tx2_cached * batch_num
@@ -160,7 +164,7 @@ expand = args.expand
 
 # garbage clean
 # kill_process()
-# remove_cache_model(args)
+remove_cache_model(args)
 
 run_id = 11
 metric = [0, '0.18108207581891791', '0.18991534781008465', '0.18439455281560543', '0.18917924181082077', '0.19801251380198748', '0.18844313581155686', '0.430253956569746', '0.6091277143908723', '0.6448288553551711', '0.6624953993375046', '0.6750092013249908']

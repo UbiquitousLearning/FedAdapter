@@ -74,8 +74,9 @@ class SeqTaggingTrainer:
             global_model = copy.deepcopy(self.model)
 
 
-        import random
-        batch_chosen = random.sample(range(0,417),20)
+
+        np.random.seed()
+        batch_chosen = np.random.choice(range(0,417), 20, replace=False)
         # logging.info("Batch chosen is %s", str(batch_chosen))
 
         for epoch in range(0, self.args.epochs):
@@ -194,6 +195,7 @@ class SeqTaggingTrainer:
         token_logits = preds
         preds = np.argmax(preds, axis=2)
 
+        # label_map = {i: label for i, label in enumerate(self.args.labels_list)}
         label_map = {0:'O',1:'B-DATE',2:'I-DATE',3:'B-MONEY',4:'I-MONEY',5:'B-WORK_OF_ART',6:'B-CARDINAL',7:'B-ORG',8:'I-ORG',9:'B-PERSON',10:'I-PERSON',11:'B-GPE',12:'B-NORP',13:'B-PERCENT',14:'I-PERCENT',15:'I-CARDINAL',16:'I-WORK_OF_ART',17:'B-ORDINAL',18:'I-GPE',19:'B-TIME',20:'I-TIME',21:'B-LOC',22:'I-LOC',23:'B-PRODUCT',24:'B-FAC',25:'I-FAC',26:'B-EVENT',27:'I-EVENT',28:'B-QUANTITY',29:'I-QUANTITY',30:'B-LANGUAGE',31:'I-NORP',32:'B-LAW',33:'I-LAW',34:'I-PRODUCT',35:'I-LANGUAGE',36:'I-ORDINAL'}
 
         out_label_list = [[] for _ in range(out_label_ids.shape[0])]
@@ -235,6 +237,11 @@ class SeqTaggingTrainer:
                     writer.write("{}\n".format(cls_report))
                 for key in sorted(result.keys()):
                     writer.write("{} = {}\n".format(key, str(result[key])))
+        
+        if self.args.evaluate_during_training_steps == 200 or self.args.evaluate_during_training_steps == 300:
+            wandb.log(result)
+        else:
+            pass
 
         self.results.update(result)
         logging.info(self.results)

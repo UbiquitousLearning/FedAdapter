@@ -9,11 +9,10 @@ from transformers import (
     BertForQuestionAnswering,
     DistilBertConfig,
     DistilBertTokenizer,
-    DistilBertForTokenClassification,
     DistilBertForQuestionAnswering,
     BartConfig, 
     BartForConditionalGeneration, 
-    BartTokenizer
+    BartTokenizer,
 )
 import logging
 
@@ -67,9 +66,12 @@ def create_model_o(args, formulation="classification"):
         args.model_type]
     import os
 
-    inherit = False
-    if args.evaluate_during_training_steps != 200 and args.evaluate_during_training_steps != 300:
-        inherit = True
+    inherit = False # trial&error
+    if args.evaluate_during_training_steps == 300: # setup
+        inherit = False
+    
+    if args.evaluate_during_training_steps == 200: # baseline
+        inherit = False
 
     # if False:
     if os.path.exists(os.path.join(args.output_dir, "pytorch_model.bin")) and inherit == True:
@@ -79,7 +81,7 @@ def create_model_o(args, formulation="classification"):
         adapter_list = []
         for i in range(int(64/8)):
             adapter_list.append(str(i))
-        model.set_active_adapters(adapter_list)
+        # model.set_active_adapters(adapter_list)
         model.train_adapter(adapter_list)
         if formulation != "seq2seq":
             tokenizer = tokenizer_class.from_pretrained(
@@ -114,16 +116,16 @@ def create_model_o(args, formulation="classification"):
         model.add_classification_head("0", num_labels=num_labels, layers=1)
         
         
-        model.set_active_adapters(adapter_list)
+        # model.set_active_adapters(adapter_list)
         model.train_adapter(adapter_list)
         if formulation != "seq2seq":
             tokenizer = tokenizer_class.from_pretrained(
-                args.model_name, do_lower_case=args.do_lower_case, local_files_only=True)
+                args.model_name, do_lower_case=args.do_lower_case, local_files_only=False)
         else:
             tokenizer = [None, None]
             tokenizer[0] = tokenizer_class.from_pretrained(args.model_name)
             tokenizer[1]= tokenizer[0]
-    # logging.info(model)
+    logging.info(model)
         
     return config, model, tokenizer
 
@@ -180,21 +182,21 @@ def create_model(args, formulation="classification"):
     else:
         config = config_class.from_pretrained(args.model_name, **args.config)
         model = model_class.from_pretrained(args.model_name, config=config)
-        # width = 64
-        # u_adapter_size = 8 # 单位宽度的adapter
-        # rf = int(768 / u_adapter_size)
+        width = 64
+        u_adapter_size = 8 # 单位宽度的adapter
+        rf = int(768 / u_adapter_size)
 
-        # adapter_num = int(width / u_adapter_size)
+        adapter_num = int(width / u_adapter_size)
 
-        # adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':rf, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
+        adapter_config = {'original_ln_before':True, 'original_ln_after':True, 'residual_before_ln':True, 'adapter_residual_before_ln':False, 'ln_before':False, 'ln_after':False, 'mh_adapter':False, 'output_adapter':True, 'non_linearity':'relu', 'reduction_factor':rf, 'inv_adapter':None, 'inv_adapter_reduction_factor':None, 'cross_adapter':False, 'leave_out':[]} # [0,1,2,3,4,5,6,7,8,9,10,11]
 
-        # adapter_list = []
-        # for i in range(adapter_num):
-        #     model.add_adapter(str(i),config=adapter_config)
-        #     adapter_list.append(str(i))
+        adapter_list = []
+        for i in range(adapter_num):
+            model.add_adapter(str(i),config=adapter_config)
+            adapter_list.append(str(i))
 
         # model.set_active_adapters(adapter_list)
-        # model.train_adapter(adapter_list)
+        model.train_adapter(adapter_list)
         if formulation != "seq2seq":
             tokenizer = tokenizer_class.from_pretrained(
                 args.model_name, do_lower_case=args.do_lower_case, local_files_only=True)
@@ -278,7 +280,7 @@ def create_model(args, formulation="classification"):
     # logging.info(model)
     
     
-    # logging.info(self.model)
+    logging.info(model)
     return config, model, tokenizer
 
 
