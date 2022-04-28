@@ -33,6 +33,7 @@ if __name__ == "__main__":
     parser = add_federated_args(parser)
     # TODO: add more customized args.
     args = parser.parse_args()
+    args.evaluate_during_training_steps = 300 # setup flag
 
     # customize the log format
     logging.basicConfig(
@@ -60,8 +61,8 @@ if __name__ == "__main__":
 
     if process_id == 0:
         # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
-        # wandb.init(project="test", entity="cdq", 
-        wandb.init(project="BaseLine", entity="cdq", name="Watch-New-FL-ST-BERT-"+ str(args.dataset) + "-Adapter-" + args.freeze_layers if args.freeze_layers else "", config=args)
+        wandb.init(project="setup", entity="cdq", name="FL-ST-BERT-"+ str(args.dataset) +"-"+str(args.client_num_per_round)+ "-"+str(args.train_batch_size) + "-Adapter-Depth-11-Width-32", config=args)
+        pass
 
     # device: check "gpu_mapping.yaml" to see how to define the topology
     device = mapping_processes_to_gpu_device_from_yaml_file(

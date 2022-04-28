@@ -108,11 +108,11 @@ args = add_args(parser)
 
 args.dataset = "onto"
 args.round = -1 
-args.depth = 0
+args.depth = 1
 args.width = 8
-args.time_threshold = 90
+args.time_threshold = 60
 args.max_round = 3000
-args.expand = 4 # time_thereshold的膨胀系数，actual time_threshold is time_threshold * (expand * depth + 1). 越深的层应该更稳定，可以减少trial频率
+args.expand = 3 # time_thereshold的膨胀系数，actual time_threshold is time_threshold * (expand * depth + 1). 越深的层应该更稳定，可以减少trial频率
 
 filename = "results/{args.dataset}-depth-{args.depth}-freq-{args.time_threshold}.log".format(args=args)
 f=open(filename,"w+")
@@ -126,7 +126,7 @@ width = args.width
 
 latency_tx2_cached = np.array([0.02, 0.09, 0.18, 0.27, 0.36, 0.45, 0.54, 0.63, 0.72, 0.81, 0.90, 0.99, 1.08])
 bw = 1 # both for upload and download bandwidth
-batch_num = 100 # per round
+batch_num = 20 # per round
 # overhead per round
 
 comp = latency_tx2_cached * batch_num
@@ -151,6 +151,7 @@ while freeze_layers[1][-1] < args.max_round: # max_round = 1000
     model_size_32 = np.array([0.02 + i*0.05*width/32 for i in range(0,13)]) * 4
     comm = model_size_32 * 2 / bw
     print(freeze_layers,file=f,flush=True)
+    print(metric,file=f,flush=True)
     # os.system("perl -p -i -e 's/Trail[0-9]*/Trail{args.depth}{args.time_threshold}/g' /home/cdq/FedNLP/experiments/distributed/transformer_exps/run_tc_exps/fedavg_main_tc.py".format(args=args)) # wandb name
     depth_shallow = freeze_layers[0][-1]
     depth_deep = depth_shallow + 1
@@ -225,15 +226,13 @@ while freeze_layers[1][-1] < args.max_round: # max_round = 1000
         round = round_shallow
         depth = depth_shallow
         inherit_model("shallow", args)
-
-    if acc_winner == acc_wide:
+    elif acc_winner == acc_wide:
         print("winner is wide",file=f,flush=True)
         round = round_wide
         depth = depth_shallow
         width = width + 8
         inherit_model("wide", args)
-
-    if acc_winner == acc_deep:
+    elif acc_winner == acc_deep:
         print("winner is deep",file=f,flush=True)
         round = round_deep
         depth = depth_deep

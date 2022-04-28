@@ -75,14 +75,14 @@ class SeqTaggingTrainer:
 
 
         import random
-        # batch_chosen = random.sample(range(0,417),100)
+        batch_chosen = random.sample(range(0,417),20)
         # logging.info("Batch chosen is %s", str(batch_chosen))
 
         for epoch in range(0, self.args.epochs):
 
             for batch_idx, batch in enumerate(self.train_dl):
-                # if batch_idx not in batch_chosen:
-                #     continue
+                if batch_idx not in batch_chosen:
+                    continue
                 self.model.train()
                 batch = tuple(t for t in batch)
                 # dataset = TensorDataset(all_guid, all_input_ids, all_input_mask, all_segment_ids, all_label_ids)
@@ -174,7 +174,7 @@ class SeqTaggingTrainer:
             start_index = self.args.eval_batch_size * i
 
             end_index = start_index + self.args.eval_batch_size if i != (n_batches - 1) else test_sample_len
-            logging.info("batch index = %d, start_index = %d, end_index = %d" % (i, start_index, end_index))
+            # logging.info("batch index = %d, start_index = %d, end_index = %d" % (i, start_index, end_index))
 
             if preds is None:
                 preds = logits.detach().cpu().numpy()
@@ -221,13 +221,12 @@ class SeqTaggingTrainer:
             "recall": recall_score(out_label_list, preds_list),
             "f1_score": f1_score(out_label_list, preds_list),
         }
-        # wandb.log(result)
+        wandb.log(result)
         results.update(result)
+        os.makedirs(eval_output_dir, exist_ok=True)
+        self.model.save_pretrained(self.args.output_dir)
         if result["f1_score"] > self.best_score:
             self.best_score = result["f1_score"]
-
-            os.makedirs(eval_output_dir, exist_ok=True)
-            self.model.save_pretrained(self.args.output_dir)
             # self.model.save_adapter(self.args.output_dir, 'a0')
             output_eval_file = os.path.join(eval_output_dir, "eval_results.txt")
             with open(output_eval_file, "w") as writer:

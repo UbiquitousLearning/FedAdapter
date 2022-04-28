@@ -29,7 +29,7 @@ class FedTransformerTrainer(ModelTrainer):
     def test_on_the_server(self, train_data_local_dict, test_data_local_dict, device, args=None, round_idx=0):
         logging.info(args.evaluate_during_training_steps)
         if args.evaluate_during_training_steps == 200 or args.evaluate_during_training_steps == 300: # Baseline and Setup
-            if round_idx % 20 == 0:
+            if round_idx % 10 == 0:
                 logging.info(args)
                 self.model_trainer.eval_model(device=device)
             return True
@@ -37,7 +37,7 @@ class FedTransformerTrainer(ModelTrainer):
             # if round_idx % 10 == 0:
             # if True:
             logging.info("Current round is %s; Only evaluate on round %s", str(round_idx), str(args.comm_round-2))
-            if round_idx == args.comm_round-2:
+            if round_idx == args.comm_round-2 or round_idx % 10 == 0:
                 self.model_trainer.eval_model(device=device)
             return True
 

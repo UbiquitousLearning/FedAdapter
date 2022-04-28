@@ -202,11 +202,10 @@ class TextClassificationTrainer:
         result["eval_loss"] = eval_loss
         results.update(result)
 
-        
+        os.makedirs(self.args.output_dir, exist_ok=True)
+        self.model.save_pretrained(self.args.output_dir)
         if result["acc"] > self.best_accuracy:
             self.best_accuracy = result["acc"]
-            os.makedirs(self.args.output_dir, exist_ok=True)
-            self.model.save_pretrained(self.args.output_dir)
             # self.model.save_adapter(self.args.output_dir, '0')
             output_eval_file = os.path.join(self.args.output_dir, "eval_results.txt")
             with open(output_eval_file, "w") as writer:

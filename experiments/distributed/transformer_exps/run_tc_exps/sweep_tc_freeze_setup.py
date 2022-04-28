@@ -138,14 +138,6 @@ run_id = 0
 for c in client_num[::-1]:
     for dataset in datasets[::-1]:
         for b in bs[::-1]:
-            if dataset == "agnews" and b == 32 and c == 10:
-                continue
-            if dataset == "agnews" and b == 8 and c == 10:
-                continue
-            if dataset == "20news" and b == 32 and c == 10:
-                continue
-            if dataset == "20news" and b == 8 and c == 10:
-                continue
             args.dataset = dataset
             args.bs = b
             args.client_num = c

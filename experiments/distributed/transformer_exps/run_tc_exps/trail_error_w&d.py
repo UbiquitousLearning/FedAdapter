@@ -124,12 +124,12 @@ def warm_up():
 parser = argparse.ArgumentParser()
 args = add_args(parser)
 
-args.dataset = "20news" # "agnews", "20news", "semeval_2010_task8"
+args.dataset = "semeval_2010_task8" # "agnews", "20news", "semeval_2010_task8"
 args.round = -1 
-args.depth = 0
+args.depth = 1
 args.width = 8
-args.time_threshold = 60
-args.max_round = 3000
+args.time_threshold = 90
+args.max_round = 5000
 args.expand = 4 # time_thereshold的膨胀系数，actual time_threshold is time_threshold * (expand * depth + 1). 越深的层应该更稳定，可以减少trial频率
 
 filename = "results/{args.dataset}-depth-{args.depth}-freq-{args.time_threshold}.log".format(args=args)
@@ -145,13 +145,13 @@ width = args.width
 
 latency_tx2_cached = np.array([0.02, 0.09, 0.18, 0.27, 0.36, 0.45, 0.54, 0.63, 0.72, 0.81, 0.90, 0.99, 1.08])
 bw = 1 # both for upload and download bandwidth
-batch_num = 29 # per round
+batch_num = 20 # per round; 20 for semeval; 29 for 20news; 30 for agnews
 # overhead per round
 
 comp = latency_tx2_cached * batch_num
 
 freeze_layers = [[depth],[round],depth,[width]] 
-# freeze_layers = [[0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], [-1, 79, 88, 118, 148, 167, 187, 207, 227, 247, 339, 432], 2, [8, 8, 8, 16, 16, 16, 16, 16, 16, 16, 16, 16]]
+freeze_layers = [[1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3], [-1, 206, 413, 611, 809, 911, 1087, 1263, 1439, 1557, 1729, 1901], 3, [8, 16, 16, 24, 24, 24, 32, 32, 32, 32, 32, 32]]
 
 
 time_threshold = args.time_threshold # trail_freq. Unit: S
@@ -162,8 +162,8 @@ expand = args.expand
 # kill_process()
 # remove_cache_model(args)
 
-run_id = 0
-metric = [0]
+run_id = 11
+metric = [0, '0.18108207581891791', '0.18991534781008465', '0.18439455281560543', '0.18917924181082077', '0.19801251380198748', '0.18844313581155686', '0.430253956569746', '0.6091277143908723', '0.6448288553551711', '0.6624953993375046', '0.6750092013249908']
 while freeze_layers[1][-1] < args.max_round: # max_round = 1000
     os.system("mkdir ./tmp/; \
     touch ./tmp/{args.dataset}-fedml-shallow-{args.depth}-{args.time_threshold}; \

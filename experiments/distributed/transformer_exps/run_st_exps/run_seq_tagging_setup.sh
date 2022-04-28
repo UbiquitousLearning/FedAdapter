@@ -9,7 +9,7 @@ WORKER_NUM=$7
 LAYERS=$8
 DEPTH=$9
 TIME=$10
-TYPE=$11
+BS=$11
 
 LOG_FILE="fedavg_transformer_st.log"
 
@@ -23,7 +23,7 @@ echo $PROCESS_NUM
 hostname > mpi_host_file
 
 mpirun -np $PROCESS_NUM -hostfile mpi_host_file \
-python -m fedavg_main_st \
+python -m fedavg_main_st_setup \
   --gpu_mapping_file "gpu_mapping.yaml" \
   --gpu_mapping_key cdq-${WORKER_NUM} \
   --client_num_per_round $WORKER_NUM \
@@ -37,19 +37,18 @@ python -m fedavg_main_st \
   --model_type bert \
   --model_name bert-base-uncased \
   --do_lower_case True \
-  --train_batch_size 4 \
+  --train_batch_size $BS \
   --eval_batch_size 8 \
   --max_seq_length 256 \
   --lr $C_LR \
   --server_lr $S_LR \
   --fedprox_mu $MU \
   --epochs 1 \
-  --output_dir "./tmp/${DATA_NAME}_fedavg_output_${TYPE}-${DEPTH}-${TIME}/" \
+  --output_dir "./tmp/${DATA_NAME}_fedavg_output_baseline-${DEPTH}-${TIME}/" \
   --fp16 \
   --freeze_layers $LAYERS \
   --depth $DEPTH \
-  --freq $TIME \
-  --type $TYPE
+  --freq $TIME
   # 2> ${LOG_FILE} &
 
 # sh run_seq_tagging.sh FedAvg "niid_cluster_clients=100_alpha=5.0" 1e-5 0.1 0.5 30

@@ -38,7 +38,7 @@ python -m fedavg_main_tc_trial \
   --model_name bert-base-uncased \
   --do_lower_case True \
   --train_batch_size 4 \
-  --eval_batch_size 4 \
+  --eval_batch_size 8 \
   --max_seq_length 256 \
   --lr $C_LR \
   --server_lr $S_LR \

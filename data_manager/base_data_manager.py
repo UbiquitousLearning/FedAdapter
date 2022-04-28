@@ -38,7 +38,7 @@ class BaseDataManager(ABC):
         # TODO: sync to the same logic to sample index
         # self.client_index_list = self.sample_client_index(process_id, num_workers)
         # self.client_index_list = self.get_all_clients()
-        self.client_index_list = self.sample_client_index(process_id, num_workers)
+        self.client_index_list = self.get_all_clients()
 
     @staticmethod
     def load_attributes(data_path):
