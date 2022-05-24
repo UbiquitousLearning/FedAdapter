@@ -31,7 +31,6 @@ def add_args(parser):
     parser.add_argument('--step', type=int, default=1,
                         help='the step length of depth increase')
     return parser.parse_args()
-
 def wait_for_the_training_process(type, args):
     args.type = type
     pipe_path = "./tmp/{args.dataset}-fedml-{args.type}-{args.depth}-{args.time_threshold}".format(args=args)
@@ -99,7 +98,7 @@ def set_hp(delta_round, freeze_layers, args):
         if args.dataset == "20news":
             partition_method = "uniform"
 
-        hp = 'FedAvg ' + partition_method + ' 0.1 0.1 ' + str(delta_round) + ' 5 ' + remove_space(str([freeze_layers[2]]).replace(',','.')+','+str([-1]).replace(',','.')+','+str(freeze_layers[2]))+','+str(freeze_layers[3][-1]).replace(',','.')+" "+str(args.depth)+" "+str(args.time_threshold) +" "+str(args.dataset) +" "+str(args.type)# linux 读取输入的时候以，为分隔符，需要替换掉
+        hp = 'FedAvg ' + partition_method + ' 0.1 0.1 ' + str(delta_round) + ' 10 ' + remove_space(str([freeze_layers[2]]).replace(',','.')+','+str([-1]).replace(',','.')+','+str(freeze_layers[2]))+','+str(freeze_layers[3][-1]).replace(',','.')+" "+str(args.depth)+" "+str(args.time_threshold) +" "+str(args.dataset) +" "+str(args.type)# linux 读取输入的时候以，为分隔符，需要替换掉
 
         return hp
 
@@ -164,7 +163,12 @@ print("Running args is %s" % str(args),file=f,flush=True)
 
 # garbage clean
 # kill_process()
-remove_cache_model(args)
+if args.round == -1:
+    remove_cache_model(args)
+else:
+    metric = [0, '0.4395910780669145', '0.5945300053106745', '0.7413701540095592']
+    freeze_layers = [[0, 0, 2, 2], [-1, 79, 88, 177], 2, [8, 16, 16, 24]]
+    run_id = 3
 
 while freeze_layers[1][-1] < args.max_round: # max_round = 1000
     os.system("mkdir ./tmp/; \
@@ -182,7 +186,7 @@ while freeze_layers[1][-1] < args.max_round: # max_round = 1000
     comm = model_size * 2 / bw
 
     depth_shallow = freeze_layers[0][-1]
-    depth_deep = depth_shallow + step
+    depth_deep = min(12, depth_shallow + step)
     depth_deep = skip_trial(depth_deep)
 
     time_threshold = args.time_threshold * (expand * freeze_layers[0][-1] + 1) # depth = freeze_layers[0][-1]
@@ -190,7 +194,7 @@ while freeze_layers[1][-1] < args.max_round: # max_round = 1000
     delta_round_shallow = int(time_threshold // (comm[depth_shallow] + comp[depth_shallow]))
     delta_round_deep = int(time_threshold // (comm[depth_deep] + comp[depth_deep]))
 
-    width_wide = width+8
+    width_wide = min(64, width+8)
     model_size_wide = np.array([0.02 + i*0.05*width_wide/32 for i in range(0,13)]) * 4
     comm_wide = model_size_wide * 2 / bw
     # print(comm,file=f,flush=True)

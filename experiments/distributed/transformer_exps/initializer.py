@@ -66,12 +66,12 @@ def create_model_o(args, formulation="classification"):
         args.model_type]
     import os
 
-    inherit = False # trial&error
+    inherit = True # trial&error
     if args.evaluate_during_training_steps == 300: # setup
         inherit = False
     
     if args.evaluate_during_training_steps == 200: # baseline
-        inherit = False
+        inherit = True
 
     # if False:
     if os.path.exists(os.path.join(args.output_dir, "pytorch_model.bin")) and inherit == True:
@@ -120,7 +120,7 @@ def create_model_o(args, formulation="classification"):
         model.train_adapter(adapter_list)
         if formulation != "seq2seq":
             tokenizer = tokenizer_class.from_pretrained(
-                args.model_name, do_lower_case=args.do_lower_case, local_files_only=False)
+                args.model_name, do_lower_case=args.do_lower_case, local_files_only=True)
         else:
             tokenizer = [None, None]
             tokenizer[0] = tokenizer_class.from_pretrained(args.model_name)

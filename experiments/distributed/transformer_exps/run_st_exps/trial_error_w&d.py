@@ -49,7 +49,8 @@ def wait_for_the_training_process(type, args):
             # print("Daemon is alive. Waiting for the training result.")
 
 def get_acc(args, type):
-    eval_file_path = "./tmp/{args.dataset}_fedavg_output_".format(args=args) + type + "/eval_results.txt"
+    args.atype = type
+    eval_file_path = "./tmp/{args.dataset}_fedavg_output_{args.atype}-{args.depth}-{args.time_threshold}/eval_results.txt".format(args=args)
     file_fd = os.open(eval_file_path, os.O_RDONLY | os.O_NONBLOCK)
     with os.fdopen(file_fd) as file:
         while True:
@@ -149,7 +150,12 @@ print("Running args is %s" % str(args),file=f,flush=True)
 
 # garbage clean
 # kill_process()
-remove_cache_model(args)
+if args.round == -1:
+    remove_cache_model(args)
+else:
+    metric = [0, '0.525025025025025', '0.5570515970515971', '0.5776129261724505', '0.5862847051898362']
+    freeze_layers = [[1, 1, 1, 1, 2], [-1, 206, 413, 620, 727], 1, [8, 16, 16, 16, 16]]
+    run_id = 4
 
 while freeze_layers[1][-1] < args.max_round:
     os.system("mkdir ./tmp/; \
@@ -167,7 +173,7 @@ while freeze_layers[1][-1] < args.max_round:
     comm = model_size * 2 / bw
 
     depth_shallow = freeze_layers[0][-1]
-    depth_deep = depth_shallow + step
+    depth_deep = min(12, depth_shallow + step)
     depth_deep = skip_trial(depth_deep)
 
     time_threshold = args.time_threshold * (expand * freeze_layers[0][-1] + 1) # depth = freeze_layers[0][-1]
@@ -175,7 +181,7 @@ while freeze_layers[1][-1] < args.max_round:
     delta_round_shallow = int(time_threshold // (comm[depth_shallow] + comp[depth_shallow]))
     delta_round_deep = int(time_threshold // (comm[depth_deep] + comp[depth_deep]))
 
-    width_wide = width+8
+    width_wide = min(64, width+8)
     model_size_wide = np.array([0.02 + i*0.05*width_wide/32 for i in range(0,13)]) * 4
     comm_wide = model_size_wide * 2 / bw
     # print(comm,file=f,flush=True)

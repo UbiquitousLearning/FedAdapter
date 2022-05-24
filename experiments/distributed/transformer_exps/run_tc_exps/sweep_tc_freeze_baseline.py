@@ -62,8 +62,8 @@ args.dataset = "agnews" # "agnews", "20news", "semeval_2010_task8"
 
 # freeze_layers = [[depth],[round],depth,[width]] 
 width = [32, 40, 48, 56, 64]
-depth = [0,1,2,3,4,5,6]
-freeze_layers = [[6],[-1],6,[width]] 
+depth = [0,1,2,3,4,5,6,7,8,9,10,11,12]
+# freeze_layers = [[6],[-1],6,[width]] 
 
 remove_cache_model(args)
 

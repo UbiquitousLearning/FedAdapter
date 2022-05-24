@@ -223,7 +223,7 @@ class SeqTaggingTrainer:
             "recall": recall_score(out_label_list, preds_list),
             "f1_score": f1_score(out_label_list, preds_list),
         }
-        wandb.log(result)
+        # wandb.log(result)
         results.update(result)
         os.makedirs(eval_output_dir, exist_ok=True)
         self.model.save_pretrained(self.args.output_dir)

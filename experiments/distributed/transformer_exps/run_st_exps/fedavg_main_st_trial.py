@@ -61,7 +61,8 @@ if __name__ == "__main__":
     if process_id == 0:
         # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
         # wandb.init(project="test", entity="cdq", 
-        wandb.init(project="BaseLine", entity="cdq", name="Watch-New-FL-ST-BERT-"+ str(args.dataset) + "-Adapter-" + args.freeze_layers if args.freeze_layers else "", config=args)
+        # wandb.init(project="BaseLine", entity="cdq", name="Watch-New-FL-ST-BERT-"+ str(args.dataset) + "-Adapter-" + args.freeze_layers if args.freeze_layers else "", config=args)
+        pass
 
     # device: check "gpu_mapping.yaml" to see how to define the topology
     device = mapping_processes_to_gpu_device_from_yaml_file(

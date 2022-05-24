@@ -72,8 +72,8 @@ if __name__ == "__main__":
     # logging.info("process_id = %d, size = %d" % (process_id, worker_number))
     if process_id == 0:
     #     # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
-        wandb.init(project="setup", entity="cdq", name="FL-TC-BERT-"+ str(args.dataset) +"-"+str(args.client_num_per_round)+ "-"+str(args.train_batch_size) + "-Origin-Depth-11-Width-32", config=args)
-        
+        # wandb.init(project="Parallelism-TC", entity="cdq", name="FL-TC-BERT-"+ str(args.dataset) +"-"+str(args.client_num_per_round)+ "-"+str(args.train_batch_size) + "-Adapter-Depth-6-Width-32", config=args)
+        wandb.init(project="wyz-semeval", entity="cdq", name="test-Depth-12-Width-8", config=args)
     # device: check "gpu_mapping.yaml" to see how to define the topology
     device = mapping_processes_to_gpu_device_from_yaml_file(
         process_id, worker_number, args.gpu_mapping_file, args.gpu_mapping_key)

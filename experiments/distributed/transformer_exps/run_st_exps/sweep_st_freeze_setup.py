@@ -65,7 +65,7 @@ bs = [8, 16, 32]
 client_num = [5, 10]
 freeze_layers = [[6],[-1],6,[width]] 
 
-remove_cache_model(args)
+# remove_cache_model(args)
 
 run_id = 0
 

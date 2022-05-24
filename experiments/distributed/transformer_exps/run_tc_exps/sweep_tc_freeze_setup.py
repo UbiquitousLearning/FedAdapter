@@ -61,7 +61,7 @@ args.max_round = 2000
 args.bs = 8
 args.client_num = 5
 
-args.dataset = "semeval_2010_task8" # "agnews", "20news", "semeval_2010_task8"
+args.dataset = "20news" # "agnews", "20news", "semeval_2010_task8"
 
 # freeze_layers = [[depth],[round],depth,[width]] 
 width = [32, 40, 48, 56, 64]
