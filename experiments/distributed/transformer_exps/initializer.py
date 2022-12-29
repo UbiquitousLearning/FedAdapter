@@ -120,7 +120,7 @@ def create_model_o(args, formulation="classification"):
         model.train_adapter(adapter_list)
         if formulation != "seq2seq":
             tokenizer = tokenizer_class.from_pretrained(
-                args.model_name, do_lower_case=args.do_lower_case, local_files_only=True)
+                args.model_name, do_lower_case=args.do_lower_case, local_files_only=False)
         else:
             tokenizer = [None, None]
             tokenizer[0] = tokenizer_class.from_pretrained(args.model_name)

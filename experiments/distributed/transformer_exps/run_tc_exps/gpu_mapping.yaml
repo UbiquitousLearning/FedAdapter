@@ -6,7 +6,7 @@
 #     host_name_node1: [num_of_processes_on_GPU0, num_of_processes_on_GPU1, num_of_processes_on_GPU2, num_of_processes_on_GPU3, ..., num_of_processes_on_GPU_n]
 #     host_name_node_m: [num_of_processes_on_GPU0, num_of_processes_on_GPU1, num_of_processes_on_GPU2, num_of_processes_on_GPU3, ..., num_of_processes_on_GPU_n]
 cdq-10:
-    NVIDIA_A40: [2, 2, 2, 2, 0, 1, 2, 0]
+    NVIDIA_A40: [1, 2, 2, 1, 1, 0, 2, 2]
 
 cdq-5:
     # NVIDIA_A40: [2, 2, 0, 2, 0, 0, 0, 0] # test

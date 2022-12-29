@@ -37,6 +37,7 @@ def wait_for_the_training_process(type, args):
     pipe_fd = os.open(pipe_path, os.O_RDONLY | os.O_NONBLOCK)
     with os.fdopen(pipe_fd) as pipe:
         while True:
+            # print("Reading pipe_path from: {}".format(pipe_path))
             message = pipe.read()
             if message:
                 print("Received: '%s'\n" % message)
@@ -78,10 +79,10 @@ def run(type, args):
     
     print('nohup sh run_text_classification_freeze.sh '
                 '{args.hp} '
-                '> ./results/BERT/{args.dataset}-Trail-{args.depth}-{args.time_threshold}/fednlp_tc_{args.type}_{args.run_id}.log 2>&1 &'.format(args=args))
+                '> ./results/reproduce/{args.dataset}-Trail-{args.depth}-{args.time_threshold}/fednlp_tc_{args.type}_{args.run_id}.log 2>&1 &'.format(args=args))
     os.system('nohup sh run_text_classification_freeze.sh '
                 '{args.hp} '
-                '> ./results/BERT/{args.dataset}-Trail-{args.depth}-{args.time_threshold}/fednlp_tc_{args.type}_{args.run_id}.log 2>&1 &'.format(args=args))
+                '> ./results/reproduce/{args.dataset}-Trail-{args.depth}-{args.time_threshold}/fednlp_tc_{args.type}_{args.run_id}.log 2>&1 &'.format(args=args))
     
     sleep(3) # 防止tmp文件相互干扰
 
@@ -175,7 +176,7 @@ while freeze_layers[1][-1] < args.max_round: # max_round = 1000
     touch ./tmp/{args.dataset}-fedml-shallow-{args.depth}-{args.time_threshold}; \
     touch ./tmp/{args.dataset}-fedml-wide-{args.depth}-{args.time_threshold}; \
     touch ./tmp/{args.dataset}-fedml-deep-{args.depth}-{args.time_threshold}; \
-    mkdir -p ./results/BERT/{args.dataset}-Trail-{args.depth}-{args.time_threshold}".format(args=args))
+    mkdir -p ./results/reproduce/{args.dataset}-Trail-{args.depth}-{args.time_threshold}".format(args=args))
 
     print("Begin Trail", run_id, ":\n",file=f,flush=True)
     print(freeze_layers,file=f,flush=True)

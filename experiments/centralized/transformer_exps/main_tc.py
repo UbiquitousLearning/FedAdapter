@@ -43,8 +43,7 @@ if __name__ == "__main__":
     # logging.info(torch.get_num_threads())
     # logging.info(torch.get_num_threads())
     # initialize the wandb machine learning experimental tracking platform (https://wandb.ai/automl/fednlp).
-    wandb.init(project="testttt", entity="cdq", name="Watch-New-BERT-Centralized-TC-Length-16" + str(args.dataset) + "-Origin",
-        config=args)
+    wandb.init(project="measurement", entity="cdq", name= args.freeze_layers + "-Stage-9-BERT-Centralized-BS-4-uniform-" +str(args.subsample)+"-"+str(args.dataset) + "-Origin",config=args)
 
     # wandb.init(project="testt", entity="cdq", name="FedNLP-Centralized" + "-LR-0.1"
     #                                                     "-SS-" + str(args.dataset) + "-" + str(args.model_name) , config=args)
@@ -71,14 +70,15 @@ if __name__ == "__main__":
                                  "max_seq_length": args.max_seq_length,
                                  "train_batch_size": args.train_batch_size,
                                  "eval_batch_size": args.eval_batch_size,
-                                 "evaluate_during_training_steps": 6,
+                                 "evaluate_during_training_steps": args.evaluate_during_training_steps,
                                  "fp16": args.fp16,
                                  "data_file_path": args.data_file_path,
                                  "partition_file_path": args.partition_file_path,
                                  "partition_method": args.partition_method,
                                  "dataset": args.dataset,
                                  "output_dir": args.output_dir,
-                                 "is_debug_mode": args.is_debug_mode
+                                 "is_debug_mode": args.is_debug_mode,
+                                 "subsample": args.subsample
                                  })
 
     model_args.config["num_labels"] = num_labels
