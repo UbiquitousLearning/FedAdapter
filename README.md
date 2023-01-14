@@ -48,7 +48,7 @@ We process the result log via `exps_data/draw-performance-baseline.ipynb`
 to get the final pictures in the manuscript.
 
 Our experiment results could be downloaded from [Google drive](exps_data/download_data.sh).
-
+<!-- 
 
 # Notes to be merged
 # train locally
@@ -126,7 +126,7 @@ Modify [fedavg_main_st.py](experiments/distributed/transformer_exps/run_st_exps/
 
 ## Speedup Aggregation
 Modify [fedavg_main_st.py](experiments/distributed/transformer_exps/run_st_exps/fedavg_main_st.py): 
-set args.is_mobile = 0
+set args.is_mobile = 0 -->
 
 ## Citation
 Please cite our AdaFL and NFS paper if it helps your research.
