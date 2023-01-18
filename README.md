@@ -129,7 +129,7 @@ Modify [fedavg_main_st.py](experiments/distributed/transformer_exps/run_st_exps/
 set args.is_mobile = 0 -->
 
 ## Citation
-Please cite our autofednlp paper if it helps your research.
+Please cite our paper if it helps your research.
 ```bib
 @inproceedings{aufofednlp2022,
   title={AutoFedNLP: An efficient FedNLP framework},
