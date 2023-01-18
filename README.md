@@ -1,8 +1,8 @@
-# AdaFL: Efficient Federated Learning for NLP
+# AutoFedNLP: An efficient FedNLP framework
 
-AdaFL is an adapter-based efficient FedNLP framework for accelerating *federated learning* (FL) in *natural language processing* (NLP).
+AutoFedNLP is an adapter-based efficient FedNLP framework for accelerating *federated learning* (FL) in *natural language processing* (NLP).
 
-AdaFL is built atop FedNLP beta (commit id: 27f3f97), the document file and instruction could be found in [README_FedNLP.md](./README_FedNLP.md)
+AutoFedNLP is built atop FedNLP beta (commit id: 27f3f97), the document file and instruction could be found in [README_FedNLP.md](./README_FedNLP.md)
 
 # Step-by-step installation
 After `git clone`-ing this repository, please run the following command to install our dependencies.
