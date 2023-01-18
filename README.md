@@ -129,23 +129,13 @@ Modify [fedavg_main_st.py](experiments/distributed/transformer_exps/run_st_exps/
 set args.is_mobile = 0 -->
 
 ## Citation
-Please cite our AdaFL and NFS paper if it helps your research.
+Please cite our autofednlp paper if it helps your research.
 ```bib
-@inproceedings{adafl2022,
+@inproceedings{aufofednlp2022,
   title={AutoFedNLP: An efficient FedNLP framework},
   author={Dongqi Cai, Yaozong Wu, Shangguang Wang, Felix Xiaozhu Lin and Mengwei Xu},
   year={2022},
   booktitle={arXiv cs.LG 2205.10162},
   url={https://arxiv.org/abs/2205.10162}
-}
-```
-
-```
-@inproceedings{nfs2022,
-  title={Federated NLP in Few-shot Scenarios},
-  author={Dongqi Cai, Yaozong Wu, Shangguang Wang, Felix Xiaozhu Lin and Mengwei Xu},
-  year={2022},
-  booktitle={arXiv cs.LG 2212.05974},
-  url={https://arxiv.org/abs/2212.05974}
 }
 ```
