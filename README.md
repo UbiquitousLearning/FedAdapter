@@ -128,14 +128,4 @@ Modify [fedavg_main_st.py](experiments/distributed/transformer_exps/run_st_exps/
 Modify [fedavg_main_st.py](experiments/distributed/transformer_exps/run_st_exps/fedavg_main_st.py): 
 set args.is_mobile = 0 -->
 
-## Citation
-Please cite our paper if it helps your research.
-```bib
-@inproceedings{aufofednlp2022,
-  title={AutoFedNLP: An efficient FedNLP framework},
-  author={Dongqi Cai, Yaozong Wu, Shangguang Wang, Felix Xiaozhu Lin and Mengwei Xu},
-  year={2022},
-  booktitle={arXiv cs.LG 2205.10162},
-  url={https://arxiv.org/abs/2205.10162}
-}
 ```
