@@ -128,4 +128,3 @@ Modify [fedavg_main_st.py](experiments/distributed/transformer_exps/run_st_exps/
 Modify [fedavg_main_st.py](experiments/distributed/transformer_exps/run_st_exps/fedavg_main_st.py): 
 set args.is_mobile = 0 -->
 
-```
