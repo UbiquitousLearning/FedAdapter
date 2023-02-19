@@ -33,7 +33,7 @@ Each simulated client needs ~2GB GPU memory, ~10GB RAM memory.
 ```bash
 # TC tasks
 conda activate fednlp
-cd experiments/transformer_exps/run_tc_exps
+cd experiments/distributed/transformer_exps/run_tc_exps
 python trial_error_w&d.py \
     --dataset agnews \
     --round -1 \
