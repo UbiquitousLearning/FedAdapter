@@ -42,7 +42,7 @@ python trial_error_w&d.py \
     --time_threshold 90 \
     --max_round 3000 \
 ```
-The log files would be placed into `experiments/distributed/transformer_exps/run_tc_exps/results/reproduce/20news-Trail-1-90`. Tmp model would be saved into `/home/cdq/FedNLP/experiments/distributed/transformer_exps/run_tc_exps/tmp`. The final accuracy results would be stored in `experiments/distributed/transformer_exps/run_tc_exps/results/20news-depth-1-freq-90.log`.
+The log files would be placed into `experiments/distributed/transformer_exps/run_tc_exps/results/reproduce/20news-Trail-1-90`. Tmp model would be saved into `experiments/distributed/transformer_exps/run_tc_exps/tmp`. The final accuracy results would be stored in `experiments/distributed/transformer_exps/run_tc_exps/results/20news-depth-1-freq-90.log`.
 
 We process the result log via `exps_data/draw-performance-baseline.ipynb`
 to get the final pictures in the manuscript.
