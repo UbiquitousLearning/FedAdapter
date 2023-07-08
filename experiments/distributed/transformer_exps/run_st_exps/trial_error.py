@@ -254,7 +254,7 @@ while freeze_layers[1][-1] < args.max_round:
         inherit_model("deep", args)
 
     freeze_layers[0].append(depth)
-    freeze_layers[1].append(round-1) # 最后一轮会被停掉，所以虽然跑了 round 轮，但是其实本地的模型存的是round-1轮的evaluation结果
+    freeze_layers[1].append(round-1) # The last round will be stopped, so although it runs for round rounds, the local model actually stores the evaluation results of round-1 rounds.
     freeze_layers[3].append(width)
     metric.append(acc_winner)
     

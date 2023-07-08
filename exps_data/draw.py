@@ -172,7 +172,7 @@ target_acc = 1
 max_acc = max_acc * target_acc
 
 time = []
-data_path = "/Users/cdq/Desktop/opensource/FedFinetuning/data/Baseline/onto-adapter-trial.csv"
+data_path = "./Baseline/onto-adapter-trial.csv"
 raw_data = pd.read_csv(data_path,index_col=0)
 
 tmp = -1 # 记录最后一个访问的idx

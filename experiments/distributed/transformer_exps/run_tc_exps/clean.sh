@@ -1,0 +1,1 @@
+kill -9 $(ps -ef|grep "FedNLP"| awk '{print $2}')

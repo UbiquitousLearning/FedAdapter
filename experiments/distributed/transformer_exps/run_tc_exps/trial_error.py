@@ -6,6 +6,7 @@ import os
 from time import sleep
 import numpy as np
 os.environ['MKL_SERVICE_FORCE_INTEL'] = '1'
+import sys
 
 # TODO: Max Depth & Width stop trigger function
 
@@ -94,12 +95,15 @@ def remove_cache_model(args):
 def set_hp(delta_round, freeze_layers, args):
         if args.dataset == "agnews":
             partition_method = "niid_label_clients=1000_alpha=10.0"
-        if args.dataset == "semeval_2010_task8":
+        elif args.dataset == "semeval_2010_task8":
             partition_method = "niid_label_clients=100_alpha=100"
-        if args.dataset == "20news":
+        elif args.dataset == "20news":
             partition_method = "uniform"
+        else:
+            print(f"Dataset {args.dataset} has not been supported.")
+            sys.exit()
 
-        hp = 'FedAvg ' + partition_method + ' 0.1 0.1 ' + str(delta_round) + ' 10 ' + remove_space(str([freeze_layers[2]]).replace(',','.')+','+str([-1]).replace(',','.')+','+str(freeze_layers[2]))+','+str(freeze_layers[3][-1]).replace(',','.')+" "+str(args.depth)+" "+str(args.time_threshold) +" "+str(args.dataset) +" "+str(args.type)# linux 读取输入的时候以，为分隔符，需要替换掉
+        hp = 'FedAvg ' + partition_method + ' 0.1 0.1 ' + str(delta_round) + ' 5 ' + remove_space(str([freeze_layers[2]]).replace(',','.')+','+str([-1]).replace(',','.')+','+str(freeze_layers[2]))+','+str(freeze_layers[3][-1]).replace(',','.')+" "+str(args.depth)+" "+str(args.time_threshold) +" "+str(args.dataset) +" "+str(args.type)# replace(',','.')
 
         return hp
 
@@ -268,7 +272,7 @@ while freeze_layers[1][-1] < args.max_round: # max_round = 1000
         inherit_model("deep", args)
 
     freeze_layers[0].append(depth)
-    freeze_layers[1].append(round-1) # 最后一轮会被停掉，所以虽然跑了 round 轮，但是其实本地的模型存的是round-1轮的evaluation结果
+    freeze_layers[1].append(round-1) # The last round will be stopped, so although it runs for round rounds, the local model actually stores the evaluation results of round-1 rounds.
     freeze_layers[3].append(width)
     metric.append(acc_winner)
     

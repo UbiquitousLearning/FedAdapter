@@ -84,6 +84,7 @@ if __name__ == "__main__":
     # dataset attributes
     attributes = BaseDataManager.load_attributes(
         args.data_file_path)
+    print(attributes)
     num_labels = len(attributes["label_vocab"])
 
     # create the model

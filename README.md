@@ -1,3 +1,11 @@
+# Docker (Recommanded)
+Install docker in your machine. Then run the following command to build the docker image.
+```bash
+docker run -it --gpus all --network host fedadapter bash
+```
+We recommand using VSCode docker extension to develop in the docker container.
+
+
 # Efficient Federated Learning for Modern NLP
 
 FedAdapter (old name: AdaFL) is an adapter-based efficient FedNLP framework for accelerating *federated learning* (FL) in *natural language processing* (NLP).
@@ -10,12 +18,12 @@ After `git clone`-ing this repository, please run the following command to insta
 ```bash
 conda create -n fednlp python=3.7
 conda activate fednlp
-# conda install pytorch==1.6.0 torchvision==0.7.0 cudatoolkit=10.1 -c pytorch -n fednlp
-pip install torch==1.6.0+cu101 torchvision==0.7.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html
+pip3 install torch==1.10.0+cu113 torchvision==0.11.1+cu113 torchaudio==0.10.0+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html
 pip install -r requirements.txt 
-pip uninstall transformers
-pip install -e transformers/
-pip install adapter-transformers==2.3.0a0
+# some nail wheels, we install them manually
+conda install mpi4py=3.0.3=py37hf046da1_1
+conda install six==1.15.0
+
 
 cd FedML; git submodule init; git submodule update; cd ../;
 
@@ -29,21 +37,31 @@ Our system is implemented on:
 
 Each simulated client needs ~2GB GPU memory, ~10GB RAM memory.
 
-# Reproduce main results in the paper
+# Download data
+```bash
+cd data
+# remebmer to modify the path in download_data.sh and download_partition.sh
+bash download_data.sh
+bash download_partition.sh
+cd ..
+```
+
+# Main experiemnts
 ```bash
 # TC tasks
 conda activate fednlp
 cd experiments/distributed/transformer_exps/run_tc_exps
-python trial_error_w&d.py \
-    --dataset agnews \
+python trial_error.py \
+    --dataset semeval_2010_task8 \
     --round -1 \
-    --depth 1 \
+    --depth 0 \
     --width 8 \
     --time_threshold 90 \
     --max_round 3000 \
 ```
 The log files would be placed into `experiments/distributed/transformer_exps/run_tc_exps/results/reproduce/20news-Trail-1-90`. Tmp model would be saved into `experiments/distributed/transformer_exps/run_tc_exps/tmp`. The final accuracy results would be stored in `experiments/distributed/transformer_exps/run_tc_exps/results/20news-depth-1-freq-90.log`.
 
+# Reproduce main results in the paper
 We process the result log via `exps_data/draw-performance-baseline.ipynb`
 to get the final pictures in the manuscript.
 

@@ -8,8 +8,8 @@ ROUND=$6
 WORKER_NUM=$7
 LAYERS=$8
 DEPTH=$9
-TIME=$10
-TYPE=$11
+TIME=${10}
+TYPE=${11}
 
 LOG_FILE="fedavg_transformer_st.log"
 

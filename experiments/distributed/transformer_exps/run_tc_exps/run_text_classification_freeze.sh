@@ -8,8 +8,8 @@ WORKER_NUM=$6
 LAYERS=$7
 DEPTH=$8
 TIME=$9
-DATA=$10
-TYPE=$11
+DATA=${10}
+TYPE=${11}
 
 LOG_FILE="fedavg_transformer_tc.log"
 # WORKER_NUM=10
