@@ -1,10 +1,4 @@
-# Docker (Recommanded)
-Install docker in your machine. Then run the following command to build the docker image.
-```bash
-docker pull caidongqi/adafl:1.0.0
-docker run -it --gpus all --network host caidongqi/adafl:1.0.0 bash
-```
-We recommand using VSCode docker extension to develop in the docker container.
+
 
 
 # Efficient Federated Learning for Modern NLP
@@ -13,7 +7,15 @@ FedAdapter (old name: AdaFL) is an adapter-based efficient FedNLP framework for 
 
 FedAdapter is built atop FedNLP beta (commit id: 27f3f97), the document file and instruction could be found in [README_FedNLP.md](./README_FedNLP.md)
 
-# Step-by-step installation
+# Installation
+## Docker (Recommanded)
+Install docker in your machine. Then run the following command to build the docker image.
+```bash
+docker pull caidongqi/adafl:1.0.1
+docker run -it --gpus all --network host caidongqi/adafl:1.0.1 bash
+```
+We recommand using VSCode docker extension to develop in the docker container.
+## Step-by-step installation
 After `git clone`-ing this repository, please run the following command to install our dependencies.
 
 ```bash
@@ -67,6 +69,8 @@ We process the result log via `exps_data/draw-performance-baseline.ipynb`
 to get the final pictures in the manuscript.
 
 Our experiment results could be downloaded from [Google drive](exps_data/download_data.sh).
+
+You can also refer to our artifact evaluation instructions in [ae.pdf](./ae.pdf).
 <!-- 
 
 # Notes to be merged
