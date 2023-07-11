@@ -1,7 +1,8 @@
 # Docker (Recommanded)
 Install docker in your machine. Then run the following command to build the docker image.
 ```bash
-docker run -it --gpus all --network host fedadapter bash
+docker pull caidongqi/adafl:1.0.0
+docker run -it --gpus all --network host caidongqi/adafl:1.0.0 bash
 ```
 We recommand using VSCode docker extension to develop in the docker container.
 
@@ -40,7 +41,7 @@ Each simulated client needs ~2GB GPU memory, ~10GB RAM memory.
 # Download data
 ```bash
 cd data
-# remebmer to modify the path in download_data.sh and download_partition.sh
+# remember to modify the path in download_data.sh and download_partition.sh
 bash download_data.sh
 bash download_partition.sh
 cd ..
@@ -52,11 +53,11 @@ cd ..
 conda activate fednlp
 cd experiments/distributed/transformer_exps/run_tc_exps
 python trial_error.py \
-    --dataset semeval_2010_task8 \
+    --dataset 20news\
     --round -1 \
     --depth 0 \
     --width 8 \
-    --time_threshold 90 \
+    --time_threshold 60 \
     --max_round 3000 \
 ```
 The log files would be placed into `experiments/distributed/transformer_exps/run_tc_exps/results/reproduce/20news-Trail-1-90`. Tmp model would be saved into `experiments/distributed/transformer_exps/run_tc_exps/tmp`. The final accuracy results would be stored in `experiments/distributed/transformer_exps/run_tc_exps/results/20news-depth-1-freq-90.log`.

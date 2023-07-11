@@ -86,3 +86,6 @@ experiments/distributed/transformer_exps/run_st_exps/cdq/
 experiments/distributed/transformer_exps/run_tc_exps/cdq/
 experiments/distributed/transformer_exps/run_tc_exps/nice_results/
 adapter-transformers/
+
+# docker images
+docker/
