@@ -11,8 +11,8 @@ FedAdapter is built atop FedNLP beta (commit id: 27f3f97), the document file and
 ## Docker (Recommanded)
 Install docker in your machine. Then run the following command to build the docker image.
 ```bash
-docker pull caidongqi/adafl:1.0.1
-docker run -it --gpus all --network host caidongqi/adafl:1.0.1 bash
+docker pull caidongqi/adafl:1.1.0
+docker run -it --gpus all --network host caidongqi/adafl:1.1.0 bash
 ```
 We recommand using VSCode docker extension to develop in the docker container.
 ## Step-by-step installation
